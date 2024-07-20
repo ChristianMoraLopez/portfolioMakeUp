@@ -17,34 +17,42 @@ interface LocationState {
 }
 
 const MakePurchasePage: React.FC = () => {
-  const location = useLocation();
   const [formData, setFormData] = useState<FormData>({});
   const [error, setError] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    if (location.state) {
-      const fetchSignature = async () => {
-        const { amount, description, referenceCode } = location.state as LocationState;
-        
-        try {
-          const response = await axios.post<FormData>('/generate-signature', {
-            amount,
-            description,
-            referenceCode,
-          });
-          setFormData(response.data);
-          setError(null);
-        } catch (error) {
-          console.error('Error generating signature:', error);
-          setError('Error al generar la firma. Por favor, intente de nuevo.');
-        }
-      };
+    // Asegurarse de que el código se ejecute solo en el cliente
+    setIsClient(true);
+  }, []);
 
-      fetchSignature();
-    } else {
-      setError('No se encontró la información de la compra.');
+  useEffect(() => {
+    if (isClient) {
+      const location = useLocation();
+      if (location.state) {
+        const fetchSignature = async () => {
+          const { amount, description, referenceCode } = location.state as LocationState;
+          
+          try {
+            const response = await axios.post<FormData>('/generate-signature', {
+              amount,
+              description,
+              referenceCode,
+            });
+            setFormData(response.data);
+            setError(null);
+          } catch (error) {
+            console.error('Error generating signature:', error);
+            setError('Error al generar la firma. Por favor, intente de nuevo.');
+          }
+        };
+
+        fetchSignature();
+      } else {
+        setError('No se encontró la información de la compra.');
+      }
     }
-  }, [location.state]);
+  }, [isClient]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -77,6 +85,10 @@ const MakePurchasePage: React.FC = () => {
     );
   }
 
+  if (!isClient) {
+    return null; // Renderiza nada en el servidor
+  }
+
   return (
     <AppLayout>
       <div className="make-purchase">
@@ -98,3 +110,4 @@ const MakePurchasePage: React.FC = () => {
 };
 
 export default MakePurchasePage;
+
