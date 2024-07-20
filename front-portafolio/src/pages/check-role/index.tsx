@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Navbar from '@/components/Navbar/Navbar';
-import Footer from '@/components/Footer';
+import Footer from '@/components/Footer/Footer';
 
 const CheckRole = () => {
   const [role, setRole] = useState('');
