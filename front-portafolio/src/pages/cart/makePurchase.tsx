@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import axios from 'axios';
 import AppLayout from '@/components/Layout';
 
@@ -10,14 +10,8 @@ interface FormData {
   [key: string]: string | undefined;
 }
 
-interface LocationState {
-  amount: string;
-  description: string;
-  referenceCode: string;
-}
-
 const MakePurchasePage: React.FC = () => {
-  const location = useLocation();
+  const router = useRouter();
   const [formData, setFormData] = useState<FormData>({});
   const [error, setError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
@@ -28,9 +22,9 @@ const MakePurchasePage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (isClient && location.state) {
+    if (isClient && router.query.amount && router.query.description && router.query.referenceCode) {
       const fetchSignature = async () => {
-        const { amount, description, referenceCode } = location.state as LocationState;
+        const { amount, description, referenceCode } = router.query;
         
         try {
           const response = await axios.post<FormData>('/generate-signature', {
@@ -47,10 +41,10 @@ const MakePurchasePage: React.FC = () => {
       };
 
       fetchSignature();
-    } else if (isClient && !location.state) {
+    } else if (isClient && !(router.query.amount && router.query.description && router.query.referenceCode)) {
       setError('No se encontró la información de la compra.');
     }
-  }, [isClient, location.state]);
+  }, [isClient, router.query]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
