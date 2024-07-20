@@ -1,7 +1,7 @@
-// AddServiceForm.tsx
 import React, { useState } from 'react';
 import useServices from '@/hooks/useservices';
 import { useAuth } from '@/hooks/auth';
+import { PlusCircle, Image, DollarSign, FileText } from 'lucide-react';
 
 interface ServiceFormProps {
   onAdd: (service: Service) => void;
@@ -20,7 +20,7 @@ interface NewService extends Omit<Service, 'id'> {
 }
 
 const AddServiceForm: React.FC<ServiceFormProps> = ({ onAdd }) => {
-  const { userId } = useAuth(); // Obtener userId del hook de autenticación
+  const { userId } = useAuth();
   const [newService, setNewService] = useState<Omit<Service, 'id'>>({
     name: '',
     description: '',
@@ -31,15 +31,13 @@ const AddServiceForm: React.FC<ServiceFormProps> = ({ onAdd }) => {
   const { addService } = useServices();
 
   const handleAddService = async () => {
-    console.log("userId", userId);
-    
     if (!userId) {
       console.error('User ID is not available');
       return;
     }
 
     try {
-      const service: NewService = { ...newService, user_id: userId }; // Incluir user_id
+      const service: NewService = { ...newService, user_id: userId };
       const addedService = await addService(service);
       onAdd(addedService);
       setNewService({
@@ -54,38 +52,54 @@ const AddServiceForm: React.FC<ServiceFormProps> = ({ onAdd }) => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4">Agregar Nuevo Servicio</h2>
-      <div className="mb-4">
-        <input
-          type="text"
-          className="border p-2 w-full mb-2"
-          placeholder="Nombre del Servicio"
-          value={newService.name}
-          onChange={(e) => setNewService({ ...newService, name: e.target.value })}
-        />
-        <textarea
-          className="border p-2 w-full mb-2"
-          placeholder="Descripción del Servicio"
-          value={newService.description}
-          onChange={(e) => setNewService({ ...newService, description: e.target.value })}
-        ></textarea>
-        <input
-          type="number"
-          className="border p-2 w-full mb-2"
-          placeholder="Precio"
-          value={newService.price}
-          onChange={(e) => setNewService({ ...newService, price: Number(e.target.value) })}
-        />
-        <input
-          type="text"
-          className="border p-2 w-full"
-          placeholder="URL de la Imagen (opcional)"
-          value={newService.image_url}
-          onChange={(e) => setNewService({ ...newService, image_url: e.target.value })}
-        />
+    <div className="bg-white p-8 rounded-xl shadow-lg max-w-md mx-auto">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Agregar Nuevo Servicio</h2>
+      <div className="space-y-4">
+        <div className="relative">
+          <input
+            type="text"
+            className="w-full p-3 border border-gray-300 rounded-lg pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Nombre del Servicio"
+            value={newService.name}
+            onChange={(e) => setNewService({ ...newService, name: e.target.value })}
+          />
+          <FileText className="absolute left-3 top-3 text-gray-400" size={20} />
+        </div>
+        <div className="relative">
+          <textarea
+            className="w-full p-3 border border-gray-300 rounded-lg pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
+            placeholder="Descripción del Servicio"
+            value={newService.description}
+            onChange={(e) => setNewService({ ...newService, description: e.target.value })}
+          ></textarea>
+          <FileText className="absolute left-3 top-3 text-gray-400" size={20} />
+        </div>
+        <div className="relative">
+          <input
+            type="number"
+            className="w-full p-3 border border-gray-300 rounded-lg pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Precio"
+            value={newService.price}
+            onChange={(e) => setNewService({ ...newService, price: Number(e.target.value) })}
+          />
+          <DollarSign className="absolute left-3 top-3 text-gray-400" size={20} />
+        </div>
+        <div className="relative">
+          <input
+            type="text"
+            className="w-full p-3 border border-gray-300 rounded-lg pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="URL de la Imagen (opcional)"
+            value={newService.image_url}
+            onChange={(e) => setNewService({ ...newService, image_url: e.target.value })}
+          />
+          <Image className="absolute left-3 top-3 text-gray-400" size={20} />
+        </div>
       </div>
-      <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleAddService}>
+      <button 
+        className="mt-6 w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center"
+        onClick={handleAddService}
+      >
+        <PlusCircle className="mr-2" size={20} />
         Agregar Servicio
       </button>
     </div>
