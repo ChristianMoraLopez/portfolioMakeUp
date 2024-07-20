@@ -1,5 +1,7 @@
+// AddServiceForm.tsx
 import React, { useState } from 'react';
-import axios from 'axios';
+import useServices from '@/hooks/useservices';
+import { useAuth } from '@/hooks/auth';
 
 interface ServiceFormProps {
   onAdd: (service: Service) => void;
@@ -13,7 +15,12 @@ interface Service {
   image_url: string;
 }
 
+interface NewService extends Omit<Service, 'id'> {
+  user_id: number;
+}
+
 const AddServiceForm: React.FC<ServiceFormProps> = ({ onAdd }) => {
+  const { userId } = useAuth(); // Obtener userId del hook de autenticación
   const [newService, setNewService] = useState<Omit<Service, 'id'>>({
     name: '',
     description: '',
@@ -21,12 +28,20 @@ const AddServiceForm: React.FC<ServiceFormProps> = ({ onAdd }) => {
     image_url: 'https://via.placeholder.com/250',
   });
 
+  const { addService } = useServices();
+
   const handleAddService = async () => {
+    console.log("userId", userId);
+    
+    if (!userId) {
+      console.error('User ID is not available');
+      return;
+    }
+
     try {
-      const response = await axios.post<Service>('http://localhost:8000/services', newService, {
-        withCredentials: true,
-      });
-      onAdd(response.data);
+      const service: NewService = { ...newService, user_id: userId }; // Incluir user_id
+      const addedService = await addService(service);
+      onAdd(addedService);
       setNewService({
         name: '',
         description: '',

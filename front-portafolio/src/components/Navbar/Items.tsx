@@ -35,7 +35,7 @@ const Items: React.FC = () => {
 
       {/* Desktop Menu */}
       <div className="hidden lg:flex items-center space-x-4">
-        <NavLink href="/products" text="Productos" icon={<ShoppingBag size={18} />} />
+     
         <NavLink href="/contact" text="Contacto" icon={<Phone size={18} />} />
         <NavLink href="/services" text="Servicios" icon={<Briefcase size={18} />} />
         

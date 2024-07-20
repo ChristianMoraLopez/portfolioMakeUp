@@ -5,230 +5,257 @@ import { useRouter } from 'next/router';
 import { AxiosError } from 'axios';
 
 interface User {
-    id: number;
-    name: string;
-    email: string;
-    email_verified_at?: string | null;
-    role ?: string;
-    // Otros campos del usuario
-}
-
-function isAxiosError(error: any): error is AxiosError {
-    return error.isAxiosError === true;
+  id: number;
+  name: string;
+  email: string;
+  email_verified_at?: string | null;
+  role?: string;
 }
 
 type PasswordData = {
-    current_password: string;
-    password: string;
-    password_confirmation: string;
+  current_password: string;
+  password: string;
+  password_confirmation: string;
 };
 
 interface ErrorData {
-    [key: string]: string[];
+  [key: string]: string[];
 }
 
 interface UseAuthOptions {
-    middleware?: 'guest' | 'auth';
-    redirectIfAuthenticated?: string;
+  middleware?: 'guest' | 'auth';
+  redirectIfAuthenticated?: string;
 }
+
+function isAxiosError(error: any): error is AxiosError {
+  return error.isAxiosError === true;
+}
+
 export const useAuth = ({ middleware, redirectIfAuthenticated }: UseAuthOptions = {}) => {
-    const router = useRouter();
+  const router = useRouter();
 
-    const { data: user, error, mutate } = useSWR<User>('/api/user', () =>
-        axios
-            .get('/api/user')
-            .then(res => res.data)
-            .catch(error => {
-                if (error.response?.status !== 409) throw error;
+  // Fetch the authenticated user
+  const { data: user, error, mutate } = useSWR<User>('/api/user', async () => {
+    try {
+      const response = await axios.get('/api/user');
+      return response.data;
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status !== 409) {
+        throw err;
+      }
+      router.push('/verify-email');
+      return null; // Returning null to align with SWR behavior
+    }
+  });
 
-                router.push('/verify-email');
-            }),
-    );
+  // Function to get CSRF token
+  const csrf = async () => {
+    try {
+        await axios.get('/sanctum/csrf-cookie');
+        console.log("CSRF token successfully set.");
+    } catch (err) {
+        console.error('Error setting CSRF token:', err);
+    }
+};
 
-    const csrf = () => axios.get('/sanctum/csrf-cookie');
 
-    const register = async ({ setErrors, ...props }: { setErrors: (errors: ErrorData) => void; [key: string]: any }): Promise<{ errors?: ErrorData } | undefined> => {
-        await csrf();
-    
-        setErrors({});
-    
-        try {
-            await axios.post('/register', props);
-            await mutate();
-            return undefined;
-        } catch (error) {
-            if (error instanceof AxiosError && error.response?.status === 422) {
-                const errorData = error.response.data.errors as ErrorData;
-                setErrors(errorData);
-                return { errors: errorData };
-            }
-            throw error;
-        }
-    };
+  // Register function
+  const register = async (props: { setErrors: (errors: ErrorData) => void; [key: string]: any }) => {
+    const { setErrors, ...rest } = props;
+    await csrf();
+    setErrors({});
+    try {
+      await axios.post('/register', rest);
+      await mutate(); // Refresh user data
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 422) {
+        const errorData = (err.response.data as ErrorData) || {};
+        setErrors(errorData);
+        return { errors: errorData };
+      }
+      throw err;
+    }
+  };
 
-    const login = async ({ setErrors, setStatus, ...props }: { setErrors: (errors: ErrorData) => void; setStatus: (status: string | null) => void; [key: string]: any }) => {
-        await csrf();
+  // Login function
+  const login = async (props: { setErrors: (errors: ErrorData) => void; setStatus: (status: string | null) => void; [key: string]: any }) => {
+    const { setErrors, setStatus, ...rest } = props;
+    await csrf();
+    setErrors({});
+    setStatus(null);
+    try {
+      await axios.post('/login', rest);
+      await mutate(); // Refresh user data
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 422) {
+        const errorData = (err.response.data as ErrorData) || {};
+        setErrors(errorData);
+      } else {
+        throw err;
+      }
+    }
+  };
 
-        setErrors({});
-        setStatus(null);
+  // Forgot password function
+  const forgotPassword = async (props: { setErrors: (errors: ErrorData) => void; setStatus: (status: string | null) => void; email: string }) => {
+    const { setErrors, setStatus, email } = props;
+    await csrf();
+    setErrors({});
+    setStatus(null);
+    try {
+      const response = await axios.post('/forgot-password', { email });
+      setStatus(response.data.status);
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 422) {
+        const errorData = (err.response.data as ErrorData) || {};
+        setErrors(errorData);
+      } else {
+        throw err;
+      }
+    }
+  };
 
-        axios
-            .post('/login', props)
-            .then(() => mutate())
-            .catch(error => {
-                if (error.response?.status !== 422) throw error;
+  // Reset password function
+  const resetPassword = async (props: { setErrors: (errors: ErrorData) => void; setStatus: (status: string | null) => void; [key: string]: any }) => {
+    const { setErrors, setStatus, ...rest } = props;
+    await csrf();
+    setErrors({});
+    setStatus(null);
+    const token = router.query.token as string | undefined;
+    if (!token) {
+      setErrors({ token: ['Token is required'] });
+      return;
+    }
+    try {
+      const response = await axios.post('/reset-password', { token, ...rest });
+      const status = response.data.status;
+      if (status) {
+        router.push('/login?reset=' + btoa(status));
+      }
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 422) {
+        const errorData = (err.response.data as ErrorData) || {};
+        setErrors(errorData);
+      } else {
+        throw err;
+      }
+    }
+  };
 
-                setErrors(error.response.data.errors);
-            });
-    };
+  // Resend email verification function
+  const resendEmailVerification = async ({ setStatus }: { setStatus: (status: string | null) => void }) => {
+    try {
+      const response = await axios.post('/email/verification-notification');
+      setStatus(response.data.status);
+    } catch (err) {
+      console.error('Error resending email verification:', err);
+    }
+  };
 
-    const forgotPassword = async ({ setErrors, setStatus, email }: { setErrors: (errors: ErrorData) => void; setStatus: (status: string | null) => void; email: string; }) => {
-        await csrf();
+  // Update user profile function
+  const update = async (userData: Partial<User>) => {
+    await csrf();
+    try {
+      const response = await axios.patch('/profile', userData, {
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+      window.location.pathname = '/';
+      await mutate(response.data, false);
+      return response.data;
+    } catch (err) {
+      throw err;
+    }
+  };
 
-        setErrors({});
-        setStatus(null);
+  // Logout function
+  const logout = async () => {
+    if (!error) {
+      await axios.post('/logout');
+      await mutate(undefined, false);
+    }
+    window.location.pathname = '/';
+  };
 
-        axios
-            .post('/forgot-password', { email })
-            .then(response => setStatus(response.data.status))
-            .catch(error => {
-                if (error.response?.status !== 422) throw error;
+  // Update password function
+  const updatePassword = async (passwordData: PasswordData) => {
+    await csrf();
+    try {
+      const response = await axios.patch('/password', passwordData, {
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+      return response.data;
+    } catch (err) {
+      throw err;
+    }
+  };
 
-                setErrors(error.response.data.errors);
-            });
-    };
+  // Delete account function
+  const deleteAccount = async (password: string) => {
+    await csrf();
+    try {
+      await axios.delete('/delete-account', {
+        data: { password },
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+      await mutate(undefined, false);
+    } catch (err) {
+      throw err;
+    }
+  };
 
-    const resetPassword = async ({ setErrors, setStatus, ...props }: { setErrors: (errors: ErrorData) => void; setStatus: (status: string | null) => void; [key: string]: any }) => {
-        await csrf();
+  // Check user role function
+  const checkRole = async (): Promise<string | null> => {
+    try {
+      const response = await axios.get('/check-role');
+      return response.data.role;
+    } catch (err: unknown) {
+      if (isAxiosError(err) && err.response?.status === 401) {
+        router.push('/login');
+      } else {
+        console.error('An unexpected error occurred:', err);
+      }
+      return null;
+    }
+  };
 
-        setErrors({});
-        setStatus(null);
+  const userId = user?.id;
 
-        const token = router.query.token as string | undefined;
+  useEffect(() => {
+    if (middleware === 'guest' && redirectIfAuthenticated && user) {
+      router.push(redirectIfAuthenticated);
+    }
+    if (router.pathname === '/verify-email' && user?.email_verified_at) {
+      if (redirectIfAuthenticated) {
+        router.push(redirectIfAuthenticated);
+      }
+    }
+    if (middleware === 'auth' && error) {
+      logout();
+    }
+  }, [user, error, router, middleware, redirectIfAuthenticated]);
 
-        if (!token) {
-            setErrors({ token: ['Token is required'] });
-            return;
-        }
-
-        axios
-            .post('/reset-password', { token, ...props })
-            .then(response => {
-                const status = response.data.status;
-                if (status) {
-                    router.push('/login?reset=' + btoa(status));
-                }
-            })
-            .catch(error => {
-                if (error.response?.status !== 422) throw error;
-
-                setErrors(error.response.data.errors);
-            });
-    };
-
-    const resendEmailVerification = ({ setStatus }: { setStatus: (status: string | null) => void; }) => {
-        axios
-            .post('/email/verification-notification')
-            .then(response => setStatus(response.data.status));
-    };
-
-    const update = async (userData: Partial<User>) => {
-        await csrf();
-        try {
-            const response = await axios.patch('/profile', userData, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            window.location.pathname = '/';
-            mutate(response.data, false);
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
-    };
-
-    const logout = async () => {
-        if (!error) {
-            await axios.post('/logout').then(() => mutate(undefined, false));
-        }
-
-        window.location.pathname = '/';
-    };
-
-    const updatePassword = async (passwordData: PasswordData) => {
-        await csrf();
-        try {
-            const response = await axios.patch('/password', passwordData, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
-    };
-
-    const deleteAccount = async (password: string) => {
-        await csrf();
-        try {
-            await axios.delete('/delete-account', {
-                data: { password },
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            await mutate(undefined, false);
-        } catch (error) {
-            throw error;
-        }
-    };
-
-    const checkRole = async (): Promise<string | null> => {
-        try {
-            const response = await axios.get('/check-role');
-            return response.data.role;
-        } catch (error: unknown) {
-            if (isAxiosError(error) && error.response?.status === 401) {
-                // Handle unauthenticated user or redirect
-                router.push('/login');
-            } else {
-                // Handle other types of errors
-                console.error('An unexpected error occurred:', error);
-            }
-            return null;
-        }
-    };
-
-    useEffect(() => {
-        if (middleware === 'guest' && redirectIfAuthenticated && user) {
-            router.push(redirectIfAuthenticated);
-        }
-        if (router.pathname === '/verify-email' && user?.email_verified_at) {
-            if (redirectIfAuthenticated) {
-                router.push(redirectIfAuthenticated);
-            }
-        }
-        if (middleware === 'auth' && error) {
-            logout();
-        }
-    }, [user, error]);
-
-    return {
-        user,
-        register,
-        login,
-        forgotPassword,
-        resetPassword,
-        resendEmailVerification,
-        update,
-        logout,
-        deleteAccount,
-        updatePassword,
-        checkRole, // Include checkRole function in the returned object
-    };
+  return {
+    user,
+    userId,
+    csrf,
+    register,
+    login,
+    forgotPassword,
+    resetPassword,
+    resendEmailVerification,
+    update,
+    logout,
+    deleteAccount,
+    updatePassword,
+    checkRole,
+  };
 };

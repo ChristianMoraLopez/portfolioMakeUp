@@ -105,6 +105,9 @@ const LoginPage: React.FC = () => {
                         <Link href="/forgot-password" className="underline text-sm text-gray-600 hover:text-gray-900">
                             Forgot your password?
                         </Link>
+                        <Link href="/signup" className="underline text-sm text-gray-600 hover:text-gray-900">
+                            Register
+                        </Link>
                         <Button type="submit" className="ml-4 bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600">
                             Login
                         </Button>

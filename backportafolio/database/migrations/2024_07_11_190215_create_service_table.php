@@ -16,11 +16,11 @@ class CreateServiceTable extends Migration
         Schema::create('services', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('nombre');
+            $table->string('name');
             $table->string('image_url')->nullable();
-            $table->text('descripcion')->nullable();
-            $table->decimal('price', 8, 2); // Decimal con 8 dígitos en total y 2 decimales
-            $table->boolean('disponible')->default(true);
+            $table->text('description')->nullable();
+            $table->decimal('price', 8, 2);
+            $table->boolean('available')->default(true);
             $table->timestamps();
         });
     }
@@ -32,6 +32,6 @@ class CreateServiceTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('servicios');
+        Schema::dropIfExists('services');
     }
 }

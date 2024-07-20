@@ -1,3 +1,4 @@
+// Navbar.tsx
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -6,13 +7,15 @@ import ShoppingCartIcon from './ShoppingCartIcon';
 import { useCart } from '@store/Cart';
 import { useAuth } from '@/hooks/auth';
 import Items from './Items';
+import { LogOut } from 'lucide-react'; // Importa el icono de logout
 
 const Navbar: React.FC = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { pathname } = useRouter();
   const { count: cartCount } = useCart();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const router = useRouter(); // Obtén el router aquí
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,6 +27,11 @@ const Navbar: React.FC = () => {
 
   const toggleNav = () => {
     setIsNavOpen(!isNavOpen);
+  };
+
+  const handleLogout = async () => {
+    await logout(); // Ejecuta la función de logout
+    router.push('/'); // Redirige a la página de inicio después del logout
   };
 
   return (
@@ -71,7 +79,7 @@ const Navbar: React.FC = () => {
           </div>
 
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-           
+            {/* Puedes agregar más elementos aquí si es necesario */}
           </div>
         </div>
       </div>
@@ -84,18 +92,28 @@ const Navbar: React.FC = () => {
       >
         <div className="px-4 pt-2 pb-3 space-y-2 backdrop-blur-md bg-white/70">
           {user ? (
-            <span className="block text-lg text-gray-800 font-semibold px-3 py-2 rounded-md transition-colors duration-300 hover:bg-pink-100">
-              Hola, {user.name}
-            </span>
+            <>
+              <span className="block text-lg text-gray-800 font-semibold px-3 py-2 rounded-md transition-colors duration-300 hover:bg-pink-100">
+                Hola, {user.name}
+              </span>
+              <NavLinkMobile href="/profile" text="Perfil" />
+              <NavLinkMobile href="/services" text="Servicios" />
+              <NavLinkMobile href="/contact" text="Contacto" />
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="block text-lg text-gray-800 font-medium px-3 py-2 rounded-md transition-colors duration-300 hover:bg-pink-100 flex items-center"
+              >
+                <LogOut size={18} className="mr-2" />
+                Cerrar sesión
+              </button>
+            </>
           ) : (
             <>
               <NavLinkMobile href="/login" text="Iniciar sesión" />
               <NavLinkMobile href="/signup" text="Registrarse" />
             </>
           )}
-          <NavLinkMobile href="/profile" text="Perfil" />
-          <NavLinkMobile href="/services" text="Servicios" />
-          <NavLinkMobile href="/contact" text="Contacto" />
         </div>
       </div>
     </nav>

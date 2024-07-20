@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode, Dispatch } from 'react';
-import ServiceItem from '@components/Services/ServiceItem';
+
 
 // Define the Service type explicitly
 export interface Service {

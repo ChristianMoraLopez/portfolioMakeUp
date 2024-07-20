@@ -9,8 +9,14 @@ class Service extends Model
 {
     use HasFactory;
 
+    // Incluye 'user_id' en los campos rellenables
     protected $fillable = [
-        'name', 'description', 'price', 'image_url',
+        'user_id',  // Añadido para permitir asignación masiva
+        'name',
+        'description',
+        'price',
+        'image_url',
+        'available', // Si también necesitas asignar 'available'
     ];
 
     /**
@@ -20,5 +26,13 @@ class Service extends Model
     {
         return $this->belongsToMany(User::class, 'compras', 'servicio_id', 'user_id')
                     ->withTimestamps();
+    }
+
+    /**
+     * Obtener el usuario que creó este servicio.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

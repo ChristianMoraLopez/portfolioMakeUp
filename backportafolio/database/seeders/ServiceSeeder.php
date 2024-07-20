@@ -18,19 +18,19 @@ class ServiceSeeder extends Seeder
         $services = [
             [
                 'user_id' => 1,
-                'nombre' => 'Servicio 1',
-                'descripcion' => 'Descripción del servicio 1',
+                'name' => 'Servicio 1',
+                'description' => 'Descripción del servicio 1',
                 'image_url' => 'https://via.placeholder.com/250',
                 'price' => 100.00,
-                'disponible' => true,
+                'available' => true,
             ],
             [
                 'user_id' => 1,
-                'nombre' => 'Servicio 2',
-                'descripcion' => 'Descripción del servicio 2',
+                'name' => 'Servicio 2',
+                'description' => 'Descripción del servicio 2',
                 'image_url' => 'https://via.placeholder.com/250',
                 'price' => 150.00,
-                'disponible' => true,
+                'available' => true,
             ],
             // Agrega más servicios según sea necesario
         ];
