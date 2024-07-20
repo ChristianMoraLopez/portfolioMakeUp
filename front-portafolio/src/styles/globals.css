@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* styles/globals.css o tu archivo de estilos */
+.ms-madi-regular {
+  font-family: "Ms Madi", cursive;
+  font-weight: 800;
+  font-style: normal;
+}
+  
+  .header{
+    font-family: "Ms Madi", cursive;
+  }
+
+
+.home-container {
+  min-height: 100vh; /* Set minimum height to cover the viewport */
+  background-color: #f5f5f5; /* Light gray background */
+  font-family: Arial, sans-serif; /* Base font family */
+}
+
+.container {
+  padding-top: 80px; /* Add some top padding after the header */
+  padding-bottom: 80px; /* Add some bottom padding before the footer */
+}
