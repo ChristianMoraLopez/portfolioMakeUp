@@ -22,24 +22,28 @@ const MakePurchasePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchSignature = async () => {
-      const { amount, description, referenceCode } = location.state as LocationState;
-      
-      try {
-        const response = await axios.post<FormData>('/generate-signature', {
-          amount,
-          description,
-          referenceCode,
-        });
-        setFormData(response.data);
-        setError(null);
-      } catch (error) {
-        console.error('Error generating signature:', error);
-        setError('Error al generar la firma. Por favor, intente de nuevo.');
-      }
-    };
+    if (location.state) {
+      const fetchSignature = async () => {
+        const { amount, description, referenceCode } = location.state as LocationState;
+        
+        try {
+          const response = await axios.post<FormData>('/generate-signature', {
+            amount,
+            description,
+            referenceCode,
+          });
+          setFormData(response.data);
+          setError(null);
+        } catch (error) {
+          console.error('Error generating signature:', error);
+          setError('Error al generar la firma. Por favor, intente de nuevo.');
+        }
+      };
 
-    fetchSignature();
+      fetchSignature();
+    } else {
+      setError('No se encontró la información de la compra.');
+    }
   }, [location.state]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -77,11 +81,17 @@ const MakePurchasePage: React.FC = () => {
     <AppLayout>
       <div className="make-purchase">
         <h1>Confirmar Compra</h1>
-        <p>Descripción: {formData.description}</p>
-        <p>Total: ${formData.amount}</p>
-        <form onSubmit={handleSubmit}>
-          <button type="submit">Realizar Compra</button>
-        </form>
+        {formData.description && formData.amount ? (
+          <>
+            <p>Descripción: {formData.description}</p>
+            <p>Total: ${formData.amount}</p>
+            <form onSubmit={handleSubmit}>
+              <button type="submit">Realizar Compra</button>
+            </form>
+          </>
+        ) : (
+          <p>Cargando...</p>
+        )}
       </div>
     </AppLayout>
   );
