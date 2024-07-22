@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
 import Courses from '../components/Courses';
 import PortfolioList from '../components/PortfolioList';
+import PortafolioCarousel from '@components/Portafolio/Portafolio'; // Importa el nuevo componente
 import api from '../api';
 import { Sparkles, Paintbrush, Camera } from 'lucide-react';
 import LoadingAnimation from '@components/Animations/LoadingAnimation'; // Importa el nuevo componente
@@ -70,7 +71,7 @@ const HomePage: React.FC = () => {
               </p>
             </motion.section>
 
-            <Courses />
+            <PortafolioCarousel />
 
             <motion.section
               initial={{ opacity: 0, y: 50 }}
