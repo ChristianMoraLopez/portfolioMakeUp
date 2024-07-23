@@ -16,17 +16,19 @@ const ServiceItem: React.FC<ServiceItemProps> = ({ service, onDelete }) => {
     const { user, checkRole } = useAuth();
     const [isDeleting, setIsDeleting] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const { itemsById } = useCart();
     const { addToCart, removeFromCart } = useCartMutations();
     const router = useRouter();
 
     useEffect(() => {
-        const fetchRole = async () => {
+        const fetchUserStatus = async () => {
             const role = await checkRole();
             setIsAdmin(role === 'admin');
+            setIsAuthenticated(!!user);
         };
-        fetchRole();
-    }, [checkRole]);
+        fetchUserStatus();
+    }, [checkRole, user]);
 
     const handleDelete = async () => {
         if (confirm('¿Estás seguro de que quieres eliminar este servicio?')) {
@@ -62,7 +64,6 @@ const ServiceItem: React.FC<ServiceItemProps> = ({ service, onDelete }) => {
     const itemInCart = itemsById[service.id];
     const quantityInCart = itemInCart ? itemInCart.quantity : 0;
 
-    // Función para formatear el precio
     const formatPrice = (price: number | string) => {
         const numPrice = typeof price === 'string' ? parseFloat(price) : price;
         return isNaN(numPrice) ? '0.00' : numPrice.toFixed(2);
@@ -71,23 +72,26 @@ const ServiceItem: React.FC<ServiceItemProps> = ({ service, onDelete }) => {
     return (
         <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl">
             <div className="relative w-full h-96 overflow-hidden">
-  <Image 
-    src={service.image_url || '/placeholder-image.jpg'} 
-    alt={service.name}
-    layout="fill"
-    objectFit="cover"
-    className="transition-transform duration-300 hover:scale-105"
-  />
-                <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 rounded-bl-lg font-semibold">
-                    <DollarSign className="inline-block mr-1" size={16} />
-                    {formatPrice(service.price)}
-                </div>
+                <Image 
+                    src={service.image_url || '/placeholder-image.jpg'} 
+                    alt={service.name}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    sizes="(max-width: 600px) 100vw, 50vw" // Ajusta según el diseño de tu página
+                    className="transition-transform duration-300 hover:scale-105"
+                />
+                {(isAdmin || isAuthenticated) && (
+                    <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 rounded-bl-lg font-semibold">
+                        <DollarSign className="inline-block mr-1" size={16} />
+                        {formatPrice(service.price)}
+                    </div>
+                )}
             </div>
             <div className="p-6">
                 <h3 className="text-2xl font-bold mb-2 text-gray-800">{service.name}</h3>
                 <p className="text-gray-600 mb-4 line-clamp-2">{service.description}</p>
                 
-                {isAdmin ? (
+                {isAdmin && (
                     <div className="flex justify-between space-x-4">
                         <button
                             className="flex-1 flex items-center justify-center bg-red-500 text-white px-4 py-2 rounded-full transition-colors duration-300 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
@@ -105,7 +109,9 @@ const ServiceItem: React.FC<ServiceItemProps> = ({ service, onDelete }) => {
                             Modificar
                         </button>
                     </div>
-                ) : (
+                )}
+                
+                {isAuthenticated && !isAdmin && (
                     <div className="space-y-3">
                         <button
                             className="w-full bg-green-500 text-white px-6 py-3 rounded-full transition-colors duration-300 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 font-semibold text-lg"

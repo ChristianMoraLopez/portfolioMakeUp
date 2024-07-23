@@ -77,24 +77,36 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: UseAuthOptions 
     }
   };
 
-  // Login function
-  const login = async (props: { setErrors: (errors: ErrorData) => void; setStatus: (status: string | null) => void; [key: string]: any }) => {
-    const { setErrors, setStatus, ...rest } = props;
-    await csrf();
-    setErrors({});
-    setStatus(null);
-    try {
-      await axios.post('/login', rest);
-      await mutate(); // Refresh user data
-    } catch (err) {
-      if (isAxiosError(err) && err.response?.status === 422) {
-        const errorData = (err.response.data as ErrorData) || {};
-        setErrors(errorData);
-      } else {
-        throw err;
-      }
+ // Login function
+ const login = async (props: { setErrors: (errors: ErrorData) => void; setStatus: (status: string | null) => void; [key: string]: any }) => {
+  const { setErrors, setStatus, ...rest } = props;
+  await csrf();
+  setErrors({});
+  setStatus(null);
+  try {
+    const response = await axios.post('/login', rest);
+    await mutate(); // Refresh user data
+
+    // Obtener datos del usuario del response o realizar una solicitud para obtener los detalles del usuario
+    const userData = response.data; // Asegúrate de que `userData` tenga el rol del usuario
+
+    // Redirigir según el rol del usuario
+    if (userData.role === 'admin') {
+      router.push('/dashboard');
+    } else {
+      router.push('/services');
     }
-  };
+    
+  } catch (err) {
+    if (isAxiosError(err) && err.response?.status === 422) {
+      const errorData = (err.response.data as ErrorData) || {};
+      setErrors(errorData);
+    } else {
+      throw err;
+    }
+  }
+};
+
 
   // Forgot password function
   const forgotPassword = async (props: { setErrors: (errors: ErrorData) => void; setStatus: (status: string | null) => void; email: string }) => {
@@ -212,20 +224,25 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: UseAuthOptions 
     }
   };
 
-  // Check user role function
-  const checkRole = async (): Promise<string | null> => {
-    try {
-      const response = await axios.get('/check-role');
-      return response.data.role;
-    } catch (err: unknown) {
-      if (isAxiosError(err) && err.response?.status === 401) {
-        router.push('/login');
+ // Check user role function
+const checkRole = async (): Promise<string | null> => {
+  try {
+    const response = await axios.get('/check-role');
+    return response.data.role;
+  } catch (err: unknown) {
+    if (isAxiosError(err)) {
+      if (err.response?.status === 401) {
+        // Si el usuario no está autenticado, solo devuelve null o una cadena vacía
+        return null; 
       } else {
         console.error('An unexpected error occurred:', err);
       }
-      return null;
+    } else {
+      console.error('An unexpected error occurred:', err);
     }
-  };
+    return null; // Retorna null en caso de error inesperado
+  }
+};
 
   const userId = user?.id;
 

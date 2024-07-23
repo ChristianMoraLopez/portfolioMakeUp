@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
-import Courses from '../components/Courses';
-import PortfolioList from '../components/PortfolioList';
-import PortafolioCarousel from '@components/Portafolio/Portafolio'; // Importa el nuevo componente
+import RandomServiceShowcase from '@components/Services/ServiceRandom';
+import PortfolioCarousel from '@components/Portafolio/Portafolio';
 import api from '../api';
-import { Sparkles, Paintbrush, Camera } from 'lucide-react';
-import LoadingAnimation from '@components/Animations/LoadingAnimation'; // Importa el nuevo componente
+import { Sparkles, Paintbrush, Camera, Star, Heart, Zap } from 'lucide-react';
+import LoadingAnimation from '@components/Animations/LoadingAnimation';
 
 const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -53,62 +52,109 @@ const HomePage: React.FC = () => {
           exit="out"
           variants={pageVariants}
           transition={pageTransition}
-          className="flex flex-col min-h-screen bg-gradient-to-br from-pink-50 to-purple-100"
+          className="flex flex-col min-h-screen bg-gradient-to-br from-pink-50 via-purple-100 to-blue-100"
         >
           <Navbar />
-          <main className="flex-1 w-full mx-auto px-4 py-12 overflow-hidden pt-32"> {/* Aquí se agrega el padding-top */}
+          <main className="flex-1 w-full mx-auto px-4 py-12 pt-24 overflow-hidden">
             <motion.section
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-center mb-16"
+              className="text-center mb-12 relative"
             >
-              <h1 className="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600 mb-4">
-                Arte en Cada Pincelada
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              >
+                <Sparkles className="w-12 h-12 text-pink-500" />
+              </motion.div>
+              <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 mb-4">
+                Servicios de Maquillaje Profesional
               </h1>
-              <p className="text-xl text-gray-700 max-w-2xl mx-auto">
-                Descubre el poder transformador del maquillaje profesional y libera tu belleza interior.
+              <p className="text-lg text-gray-700 max-w-2xl mx-auto mb-6">
+                Realza tu belleza con nuestros expertos en maquillaje. Servicios personalizados para cada ocasión.
               </p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold rounded-full text-lg shadow-lg hover:shadow-xl transition duration-300"
+              >
+                Reserva tu sesión de maquillaje
+              </motion.button>
             </motion.section>
 
-            <PortafolioCarousel />
-
-            <motion.section
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="mt-20"
+              className="mb-24 w-full mx-auto"
             >
-              <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600 mb-8 text-center">
-                Explora Nuestros Servicios
-              </h2>
-              <PortfolioList />
-            </motion.section>
+              <PortfolioCarousel />
+            </motion.div>
 
             <motion.section
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="mt-20 bg-white rounded-3xl shadow-xl p-10"
+              className="mt-20 mb-24"
             >
-              <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">¿Por qué elegirnos?</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <h2 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 mb-12 text-center">
+                Nuestros Servicios de Maquillaje
+              </h2>
+              <RandomServiceShowcase />
+            </motion.section>
+
+            <motion.section
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="mt-20 bg-white rounded-3xl shadow-2xl p-12 relative overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500"></div>
+              <h2 className="text-4xl font-bold text-gray-800 mb-10 text-center">¿Por qué elegir nuestros servicios de maquillaje?</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                 {[
-                  { icon: Paintbrush, title: "Expertise Profesional", description: "Años de experiencia en la industria del maquillaje" },
-                  { icon: Camera, title: "Resultados Fotogénicos", description: "Looks perfectos para cualquier sesión fotográfica" },
-                  { icon: Sparkles, title: "Productos Premium", description: "Usamos solo los mejores productos del mercado" }
+                  { icon: Paintbrush, title: "Expertise Profesional", description: "Años de experiencia en maquillaje profesional" },
+                  { icon: Camera, title: "Looks Fotogénicos", description: "Maquillaje perfecto para cualquier sesión fotográfica" },
+                  { icon: Star, title: "Productos Premium", description: "Usamos solo los mejores productos de maquillaje" },
+                  { icon: Heart, title: "Atención Personalizada", description: "Maquillaje adaptado a tu estilo y necesidades" },
+                  { icon: Zap, title: "Tendencias Actuales", description: "Siempre al día con las últimas tendencias en maquillaje" },
+                  { icon: Sparkles, title: "Magia en Cada Detalle", description: "Resaltamos tu belleza natural con técnicas avanzadas" }
                 ].map((item, index) => (
                   <motion.div
                     key={index}
-                    whileHover={{ scale: 1.05 }}
-                    className="flex flex-col items-center text-center p-6 bg-gradient-to-br from-pink-100 to-purple-100 rounded-2xl shadow-md"
+                    whileHover={{ scale: 1.05, boxShadow: "0 10px 20px rgba(0,0,0,0.1)" }}
+                    className="flex flex-col items-center text-center p-6 bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 rounded-2xl shadow-md transition-all duration-300"
                   >
-                    <item.icon className="w-12 h-12 text-pink-600 mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">{item.title}</h3>
+                    <div className="bg-white p-4 rounded-full shadow-md mb-6">
+                      <item.icon className="w-10 h-10 text-purple-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-3">{item.title}</h3>
                     <p className="text-gray-600">{item.description}</p>
                   </motion.div>
                 ))}
               </div>
+            </motion.section>
+
+            <motion.section
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1 }}
+              className="mt-24 text-center"
+            >
+              <h2 className="text-4xl font-bold text-gray-800 mb-6">¿Lista para lucir espectacular?</h2>
+              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                Déjanos realzar tu belleza con nuestro maquillaje profesional. Reserva tu cita hoy y experimenta la transformación.
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-10 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold rounded-full text-xl shadow-lg hover:shadow-xl transition duration-300"
+              >
+                Reserva Tu Sesión de Maquillaje
+              </motion.button>
             </motion.section>
           </main>
           <Footer />

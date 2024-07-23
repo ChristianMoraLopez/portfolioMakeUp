@@ -4,7 +4,7 @@ import axios from '@/lib/axios';
 import { AxiosError } from 'axios';
 import { useAuth } from './auth';
 
-interface Service {
+export interface Service {
   id: number;
   name: string;
   description: string;
@@ -12,7 +12,7 @@ interface Service {
   image_url: string;
 }
 
-// Función para obtener los servicios
+// Función para obtener los servicios (sin autenticación)
 const fetchServices = async () => {
   const response = await axios.get('/services');
   return response.data;
@@ -25,7 +25,7 @@ function isAxiosError(error: any): error is AxiosError {
 
 // Hook personalizado para los servicios
 const useServices = () => {
-  const { csrf } = useAuth();
+  const { csrf } = useAuth(); // Se usa solo en funciones que requieren autenticación
   const { data: services, error, mutate } = useSWR<Service[]>('/services', fetchServices);
 
   // Función para agregar un nuevo servicio

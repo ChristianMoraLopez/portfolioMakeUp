@@ -50,8 +50,8 @@ const Services: React.FC = () => {
         transition={{ duration: 0.8 }}
         className="container mx-auto py-20 px-4 sm:px-6 lg:px-8"
       >
-        <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 mb-12 text-center">
-          Dashboard
+        <h1 className="text-5xl font-extrabold text-transparent pt-16 bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 mb-12 text-center">
+          Nuestros Servicios
         </h1>
         
         {isAdmin && (
@@ -73,6 +73,40 @@ const Services: React.FC = () => {
                 >
                   Acceder al Panel de Control
                 </Link>
+              </div>
+            </div>
+          </motion.div>
+        )}
+        
+        {!user && (
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="mb-16"
+          >
+            <div className="relative p-1 rounded-3xl bg-gradient-to-r from-purple-400 via-pink-400 to-red-400">
+              <div className="p-8 bg-white rounded-2xl shadow-md">
+                <h2 className="text-3xl font-extrabold text-gray-800 mb-6 text-center">
+                  <span className="block text-2xl font-bold text-purple-600 mb-5">¿Listo para explorar nuestros servicios?</span>
+                </h2>
+                <p className="text-lg text-gray-600 mb-6 text-center">
+                  Para comprar nuestros servicios exclusivos, por favor regístrate o inicia sesión en tu cuenta.
+                </p>
+                <div className="flex justify-center space-x-4">
+                  <Link
+                    href="/register" 
+                    className="text-center text-white font-semibold text-lg py-3 px-6 rounded-full bg-purple-500 hover:bg-purple-600 transition duration-300 ease-in-out transform hover:scale-105 shadow-md"
+                  >
+                    Registrarse
+                  </Link>
+                  <Link
+                    href="/login" 
+                    className="text-center text-purple-600 font-semibold text-lg py-3 px-6 rounded-full bg-white border-2 border-purple-500 hover:bg-purple-100 transition duration-300 ease-in-out transform hover:scale-105 shadow-md"
+                  >
+                    Iniciar Sesión
+                  </Link>
+                </div>
               </div>
             </div>
           </motion.div>
