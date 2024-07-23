@@ -1,22 +1,43 @@
 import React from 'react';
+import { useRouter } from 'next/router';
 import Link from 'next/link';
 import AppLayout from '@/components/Layout';
 import { useCart, useCartMutations } from '@store/Cart';
 import { ShoppingCart, Trash, Plus, Minus } from 'lucide-react';
 import usePurchase from '@/hooks/usePurchase';
 
+const CustomAlert: React.FC<{ message: string }> = ({ message }) => (
+  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+    <strong className="font-bold">Error: </strong>
+    <span className="block sm:inline">{message}</span>
+  </div>
+);
+
 const CartPage: React.FC = () => {
   const { items, subTotal } = useCart();
   const { addToCart, removeFromCart } = useCartMutations();
-  const { handleSubmit, error } = usePurchase();
+  const { handleSubmit, error, isLoading } = usePurchase();
+  const router = useRouter();
 
-  const handleCheckout = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleCheckout = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    handleSubmit({
-      amount: subTotal.toFixed(2),
-      description: 'Compra de servicios',
-      referenceCode: `REF-${Date.now()}`,
-    });
+    try {
+      const response = await handleSubmit({
+        amount: subTotal.toFixed(2),
+        description: 'Compra de servicios',
+        referenceCode: `REF-${Date.now()}`,
+      });
+
+      // Redirect to /responsePage with response data
+      if (response) {
+        router.push({
+          pathname: '/responsePage',
+          query: { responseData: JSON.stringify(response) },
+        });
+      }
+    } catch (err) {
+      console.error('Error during checkout:', err);
+    }
   };
 
   if (items.length === 0) {
@@ -38,12 +59,7 @@ const CartPage: React.FC = () => {
       <div className="bg-gray-100 min-h-screen py-8">
         <div className="container mx-auto px-4">
           <h1 className="text-3xl font-bold text-gray-800 mb-8">Carrito de Compras</h1>
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-              <strong className="font-bold">Error: </strong>
-              <span className="block sm:inline">{error}</span>
-            </div>
-          )}
+          {error && <CustomAlert message={error} />}
           <div className="flex flex-col md:flex-row gap-8">
             <div className="md:w-3/4">
               {items.map((item) => (
@@ -73,37 +89,28 @@ const CartPage: React.FC = () => {
                       </button>
                     </div>
                     <button onClick={() => removeFromCart(item.id)} className="mt-4 flex items-center text-red-500 hover:text-red-600 transition duration-300 ease-in-out">
-                      <Trash size={16} className="mr-1" /> Eliminar
+                      <Trash size={16} />
+                      <span className="ml-2">Eliminar</span>
                     </button>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="md:w-1/4">
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-semibold text-gray-800 mb-4">Resumen</h2>
-                <div className="flex justify-between mb-2">
-                  <span>Subtotal</span>
-                  <span>${subTotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between mb-2">
-                  <span>Impuestos</span>
-                  <span>$0.00</span>
-                </div>
-                <hr className="my-4" />
-                <div className="flex justify-between mb-4">
-                  <span className="font-semibold">Total</span>
-                  <span className="font-semibold">${subTotal.toFixed(2)}</span>
-                </div>
-                <form onSubmit={handleCheckout}>
-                  <button 
-                    type="submit" 
-                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105"
-                  >
-                    Finalizar Compra
-                  </button>
-                </form>
+            <div className="md:w-1/4 bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">Resumen</h2>
+              <div className="flex justify-between mb-4">
+                <span className="font-semibold text-gray-700">Subtotal:</span>
+                <span className="font-semibold text-gray-800">${subTotal.toFixed(2)}</span>
               </div>
+              <form onSubmit={handleCheckout}>
+                <button 
+                  type="submit" 
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Procesando...' : 'Proceder al Pago'}
+                </button>
+              </form>
             </div>
           </div>
         </div>

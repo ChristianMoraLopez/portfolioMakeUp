@@ -1,66 +1,104 @@
 import { useState, useCallback } from 'react';
-import axios from 'axios';
+import axios from '@/lib/axios';
+import { useAuth } from './auth';
+import { AxiosError } from 'axios';
 
+// Interface for purchase data
 interface PurchaseData {
   amount: string;
   description: string;
   referenceCode: string;
+  currency?: string;
 }
 
 const usePurchase = () => {
   const [purchaseData, setPurchaseData] = useState<PurchaseData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { csrf, user } = useAuth(); // Get CSRF token and user from auth hook
 
-  const fetchPurchaseData = useCallback(async (amount: string, description: string, referenceCode: string) => {
-    try {
-      const response = await axios.post<PurchaseData>('http://localhost:8000/generate-signature', {
-        amount,
-        description,
-        referenceCode,
-      });
+  // Function to check if error is an AxiosError
+  const isAxiosError = (error: any): error is AxiosError => {
+    return error.isAxiosError === true;
+  };
 
-      setPurchaseData(response.data);
-      setError(null);
-    } catch (error) {
-      console.error('Error generating signature:', error);
-      if (axios.isAxiosError(error)) {
-        setError(`Error: ${error.response?.status} - ${error.response?.statusText}`);
-      } else {
-        setError('An unexpected error occurred. Please try again.');
-      }
+  // Make the request
+  const makeRequest = useCallback(async (url: string, data: any) => {
+    if (!user) {
+      throw new Error('User is not authenticated');
     }
-  }, []);
+    await csrf(); // Ensure CSRF token is set
+   
+    return axios.post<PurchaseData>(url, data);
+  }, [csrf, user]);
 
-  const handleSubmit = useCallback(async (data: PurchaseData) => {
+  // Handle errors
+  const handleError = (error: unknown) => {
+    if (isAxiosError(error)) {
+      const status = error.response?.status;
+      if (status === 401) {
+        setError('You are not authenticated. Please log in.');
+      } else if (status === 419) {
+        setError('CSRF token mismatch. Please refresh the page and try again.');
+      } else {
+        setError(`Error: ${status} - ${error.response?.statusText}`);
+      }
+    } else if (error instanceof Error) {
+      setError(error.message);
+    } else {
+      setError('An unexpected error occurred. Please try again.');
+    }
+  };
+
+  // Fetch purchase data
+  const fetchPurchaseData = useCallback(async (amount: string, description: string, referenceCode: string, currency: string = 'USD') => {
+    setIsLoading(true);
     try {
-      const response = await axios.post<PurchaseData>('http://localhost:8000/generate-signature', data);
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = 'https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu/';
+      const response = await makeRequest('/generate-signature', { amount, description, referenceCode, currency });
+      if (response.status === 200) { // Check if response status is 200 OK
+        setPurchaseData(response.data);
+        setError(null);
+        return response.data;
+      } else {
+        throw new Error('Unexpected response status');
+      }
+    } catch (error) {
+      console.error('Error fetching purchase data:', error);
+      handleError(error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [makeRequest]);
 
-      Object.entries(response.data).forEach(([key, value]) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = value;
-        form.appendChild(input);
+  // Handle form submission
+  const handleSubmit = useCallback(async (data: PurchaseData) => {
+    setIsLoading(true);
+    try {
+      const response = await makeRequest('/generate-signature', {
+        ...data,
+        currency: data.currency || 'USD',
       });
-
-      document.body.appendChild(form);
-      form.submit();
+      if (response.status === 200) { // Check if response status is 200 OK
+        setPurchaseData(response.data);
+        setError(null);
+        return response.data;
+      } else {
+        throw new Error('Unexpected response status');
+      }
     } catch (error) {
       console.error('Error submitting form:', error);
-      if (axios.isAxiosError(error)) {
-        setError(`Error: ${error.response?.status} - ${error.response?.statusText}`);
-      } else {
-        setError('An unexpected error occurred. Please try again.');
-      }
+      handleError(error);
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  }, [makeRequest]);
 
   return {
     purchaseData,
     error,
+    isLoading,
     fetchPurchaseData,
     handleSubmit,
   };

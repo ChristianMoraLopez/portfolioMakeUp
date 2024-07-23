@@ -51,13 +51,13 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: UseAuthOptions 
   // Function to get CSRF token
   const csrf = async () => {
     try {
-        await axios.get('/sanctum/csrf-cookie');
-        console.log("CSRF token successfully set.");
+      await axios.get('/sanctum/csrf-cookie');
+      console.log("CSRF token successfully set.");
     } catch (err) {
-        console.error('Error setting CSRF token:', err);
+      console.error('Error setting CSRF token:', err);
+      throw err; // Ensure the error is thrown to handle it in calling functions
     }
-};
-
+  };
 
   // Register function
   const register = async (props: { setErrors: (errors: ErrorData) => void; [key: string]: any }) => {
@@ -77,36 +77,35 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: UseAuthOptions 
     }
   };
 
- // Login function
- const login = async (props: { setErrors: (errors: ErrorData) => void; setStatus: (status: string | null) => void; [key: string]: any }) => {
-  const { setErrors, setStatus, ...rest } = props;
-  await csrf();
-  setErrors({});
-  setStatus(null);
-  try {
-    const response = await axios.post('/login', rest);
-    await mutate(); // Refresh user data
+  // Login function
+  const login = async (props: { setErrors: (errors: ErrorData) => void; setStatus: (status: string | null) => void; [key: string]: any }) => {
+    const { setErrors, setStatus, ...rest } = props;
+    await csrf();
+    setErrors({});
+    setStatus(null);
+    try {
+      const response = await axios.post('/login', rest);
+      await mutate(); // Refresh user data
 
-    // Obtener datos del usuario del response o realizar una solicitud para obtener los detalles del usuario
-    const userData = response.data; // Asegúrate de que `userData` tenga el rol del usuario
+      // Obtener datos del usuario del response o realizar una solicitud para obtener los detalles del usuario
+      const userData = response.data; // Asegúrate de que `userData` tenga el rol del usuario
 
-    // Redirigir según el rol del usuario
-    if (userData.role === 'admin') {
-      router.push('/dashboard');
-    } else {
-      router.push('/services');
+      // Redirigir según el rol del usuario
+      if (userData.role === 'admin') {
+        router.push('/dashboard');
+      } else {
+        router.push('/services');
+      }
+      
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 422) {
+        const errorData = (err.response.data as ErrorData) || {};
+        setErrors(errorData);
+      } else {
+        throw err;
+      }
     }
-    
-  } catch (err) {
-    if (isAxiosError(err) && err.response?.status === 422) {
-      const errorData = (err.response.data as ErrorData) || {};
-      setErrors(errorData);
-    } else {
-      throw err;
-    }
-  }
-};
-
+  };
 
   // Forgot password function
   const forgotPassword = async (props: { setErrors: (errors: ErrorData) => void; setStatus: (status: string | null) => void; email: string }) => {
@@ -174,7 +173,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: UseAuthOptions 
           'X-Requested-With': 'XMLHttpRequest',
         },
       });
-      window.location.pathname = '/';
+      router.push('/'); // Prefer router.push over window.location.pathname
       await mutate(response.data, false);
       return response.data;
     } catch (err) {
@@ -188,7 +187,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: UseAuthOptions 
       await axios.post('/logout');
       await mutate(undefined, false);
     }
-    window.location.pathname = '/';
+    router.push('/'); // Prefer router.push over window.location.pathname
   };
 
   // Update password function
@@ -224,25 +223,25 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: UseAuthOptions 
     }
   };
 
- // Check user role function
-const checkRole = async (): Promise<string | null> => {
-  try {
-    const response = await axios.get('/check-role');
-    return response.data.role;
-  } catch (err: unknown) {
-    if (isAxiosError(err)) {
-      if (err.response?.status === 401) {
-        // Si el usuario no está autenticado, solo devuelve null o una cadena vacía
-        return null; 
+  // Check user role function
+  const checkRole = async (): Promise<string | null> => {
+    try {
+      const response = await axios.get('/check-role');
+      return response.data.role;
+    } catch (err: unknown) {
+      if (isAxiosError(err)) {
+        if (err.response?.status === 401) {
+          // Si el usuario no está autenticado, solo devuelve null o una cadena vacía
+          return null; 
+        } else {
+          console.error('An unexpected error occurred:', err);
+        }
       } else {
         console.error('An unexpected error occurred:', err);
       }
-    } else {
-      console.error('An unexpected error occurred:', err);
+      return null; // Retorna null en caso de error inesperado
     }
-    return null; // Retorna null en caso de error inesperado
-  }
-};
+  };
 
   const userId = user?.id;
 
