@@ -12,6 +12,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\CheckRole;
+use App\Http\Controllers\PaymentController;
 
 // Rutas para usuarios no autenticados
 Route::post('/register', [RegisteredUserController::class, 'store'])
@@ -53,18 +54,21 @@ Route::middleware('auth')->group(function () {
         ->name('verification.send');
 
     // Rutas de cambio de contraseña y perfil
-
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/logout', [ProfileController::class, 'logout'])->name('profile.logout');
     Route::delete('/delete-account', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::patch('/password', [PasswordController::class, 'update'])->name('password.update');
 
-
-
     // Ruta de logout
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
+
+    // Rutas de PaymentController
+
+Route::post('/generate-signature', [PaymentController::class, 'generateSignature']);
+Route::post('/payment/confirmation', [PaymentController::class, 'handleConfirmation']);
+Route::get('/mis-compras', [PaymentController::class, 'misCompras'])->name('mis-compras');
 });
 
 // Otras rutas públicas no autenticadas

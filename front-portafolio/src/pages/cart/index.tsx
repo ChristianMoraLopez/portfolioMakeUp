@@ -1,23 +1,21 @@
 import React from 'react';
-import { useRouter } from 'next/router';
 import Link from 'next/link';
 import AppLayout from '@/components/Layout';
 import { useCart, useCartMutations } from '@store/Cart';
 import { ShoppingCart, Trash, Plus, Minus } from 'lucide-react';
+import usePurchase from '@/hooks/usePurchase';
 
 const CartPage: React.FC = () => {
   const { items, subTotal } = useCart();
   const { addToCart, removeFromCart } = useCartMutations();
-  const router = useRouter();
+  const { handleSubmit, error } = usePurchase();
 
-  const handleCheckout = () => {
-    router.push({
-      pathname: '/makePurchase',
-      query: {
-        amount: subTotal.toFixed(2),
-        description: 'Compra de servicios',
-        referenceCode: `REF-${Date.now()}`,
-      },
+  const handleCheckout = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleSubmit({
+      amount: subTotal.toFixed(2),
+      description: 'Compra de servicios',
+      referenceCode: `REF-${Date.now()}`,
     });
   };
 
@@ -40,6 +38,12 @@ const CartPage: React.FC = () => {
       <div className="bg-gray-100 min-h-screen py-8">
         <div className="container mx-auto px-4">
           <h1 className="text-3xl font-bold text-gray-800 mb-8">Carrito de Compras</h1>
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+              <strong className="font-bold">Error: </strong>
+              <span className="block sm:inline">{error}</span>
+            </div>
+          )}
           <div className="flex flex-col md:flex-row gap-8">
             <div className="md:w-3/4">
               {items.map((item) => (
@@ -91,12 +95,14 @@ const CartPage: React.FC = () => {
                   <span className="font-semibold">Total</span>
                   <span className="font-semibold">${subTotal.toFixed(2)}</span>
                 </div>
-                <button 
-                  onClick={handleCheckout} 
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105"
-                >
-                  Finalizar Compra
-                </button>
+                <form onSubmit={handleCheckout}>
+                  <button 
+                    type="submit" 
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105"
+                  >
+                    Finalizar Compra
+                  </button>
+                </form>
               </div>
             </div>
           </div>
