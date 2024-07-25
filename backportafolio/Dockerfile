@@ -38,6 +38,9 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN composer config --global process-timeout 2000 \
     && composer config --global allow-plugins.composer/package-versions-deprecated false
 
+# Etapa de construcción para instalar dependencias y ejecutar migraciones
+FROM base AS build
+
 # Copia los archivos composer.json y composer.lock y ejecuta la instalación de dependencias antes de copiar el resto del proyecto para aprovechar la caché
 COPY composer.json composer.lock ./
 
