@@ -29,7 +29,7 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql pdo_pgsql mbstring zip exif pcntl gd bcmath
+    && docker-php-ext-install pdo_pgsql mbstring zip exif pcntl gd bcmath
 
 # Instala Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -54,10 +54,6 @@ COPY . .
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Crea el archivo de base de datos SQLite
-RUN touch /var/www/html/database/database.sqlite \
-    && chown www-data:www-data /var/www/html/database/database.sqlite
-
 # Imagen final
 FROM base AS final
 
@@ -71,6 +67,9 @@ COPY .env.example .env
 RUN php artisan key:generate --force \
     && php artisan config:clear \
     && php artisan config:cache
+
+# Ejecutar las migraciones durante la construcción
+RUN php artisan migrate --force
 
 # Establecer el usuario no root
 RUN useradd -ms /bin/bash appuser \
