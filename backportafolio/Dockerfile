@@ -52,15 +52,14 @@ COPY . .
 
 # Configura permisos correctos y aplica permisos específicos para Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 755 /var/www/html \
-    && chmod -R 777 /var/www/html/storage/logs \
+    && chmod -R 755 /var/www/html/storage/logs \
     && chmod -R 755 /var/www/html/storage/framework \
-    && chmod -R 777 /var/www/html/storage/framework/views \
-    && chmod -R 777 /var/www/html/storage/framework/sessions \
-    && chmod -R 777 /var/www/html/storage/framework/cache \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R o+w /var/www/html/storage
+    && chmod -R 755 /var/www/html/storage/framework/views \
+    && chmod -R 755 /var/www/html/storage/framework/sessions \
+    && chmod -R 755 /var/www/html/storage/framework/cache \
+    && chmod -R 755 /var/www/html/storage
 
 # Crea el archivo de base de datos SQLite
 RUN touch /var/www/html/database/database.sqlite \
