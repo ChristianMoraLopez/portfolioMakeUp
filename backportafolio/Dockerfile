@@ -69,9 +69,7 @@ RUN php artisan key:generate --force \
     && php artisan config:cache
 
 # Ejecutar las migraciones durante la construcción
-
 RUN php artisan migrate --force
-
 
 # Establecer el usuario no root
 RUN useradd -ms /bin/bash appuser \
