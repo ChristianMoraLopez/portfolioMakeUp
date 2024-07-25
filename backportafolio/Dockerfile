@@ -38,7 +38,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN composer config --global process-timeout 2000 \
     && composer config --global allow-plugins.composer/package-versions-deprecated false
 
-# Etapa de construcción para instalar dependencias y ejecutar migraciones
+# Etapa de construcción para instalar dependencias y preparar la aplicación
 FROM base AS build
 
 # Copia los archivos composer.json y composer.lock y ejecuta la instalación de dependencias antes de copiar el resto del proyecto para aprovechar la caché
@@ -65,19 +65,6 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 # Crea el archivo de base de datos SQLite
 RUN touch /var/www/html/database/database.sqlite \
     && chown www-data:www-data /var/www/html/database/database.sqlite
-
-# Ejecuta las migraciones y seeders para crear las tablas necesarias y poblar datos
-RUN composer dump-autoload \
-    && php artisan migrate --force \
-    && php artisan db:seed --class=RolesSeeder \
-    && php artisan db:seed --class=UserSeeder \
-    && php artisan config:clear \
-    && php artisan route:clear \
-    && php artisan cache:clear \
-    && php artisan view:clear \
-    && php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
 
 # Imagen final
 FROM base AS final
