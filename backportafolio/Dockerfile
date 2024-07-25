@@ -67,9 +67,10 @@ COPY --from=build /var/www/html /var/www/html
 # Asegúrate de que el archivo .env esté presente
 COPY .env.example .env
 
-# Limpia la caché de configuración de Laravel
-RUN php artisan config:cache \
-    && php artisan key:generate
+# Genera la clave de la aplicación y limpia la configuración
+RUN php artisan key:generate --force \
+    && php artisan config:clear \
+    && php artisan config:cache
 
 # Establecer el usuario no root
 RUN useradd -ms /bin/bash appuser \
