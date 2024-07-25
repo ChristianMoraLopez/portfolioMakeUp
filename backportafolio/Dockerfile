@@ -26,10 +26,11 @@ RUN apt-get update \
         vim \
         unzip \
         git \
+        default-mysql-client \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_pgsql mbstring zip exif pcntl gd bcmath
+    && docker-php-ext-install pdo_pgsql pdo_mysql mbstring zip exif pcntl gd bcmath
 
 # Instala Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
