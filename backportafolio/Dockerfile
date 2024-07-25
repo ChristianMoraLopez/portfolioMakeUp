@@ -28,16 +28,8 @@ RUN apt-get update \
         git \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql pdo_pgsql mbstring zip exif pcntl gd bcmath
-
-# Verifica la instalación de Node.js
-RUN node -v && npm -v
-
-# Compilación de assets en una etapa separada
-FROM base AS build
 
 # Instala Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -46,19 +38,14 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN composer config --global process-timeout 2000 \
     && composer config --global allow-plugins.composer/package-versions-deprecated false
 
-# Copia los archivos composer.json y package.json y ejecuta la instalación de dependencias antes de copiar el resto del proyecto para aprovechar la caché
+# Copia los archivos composer.json y composer.lock y ejecuta la instalación de dependencias antes de copiar el resto del proyecto para aprovechar la caché
 COPY composer.json composer.lock ./
-COPY package.json package-lock.json ./
 
-# Instala dependencias de Composer y Node.js
-RUN composer install --prefer-dist --no-progress --no-interaction --no-scripts --no-autoloader \
-    && npm install
+# Instala dependencias de Composer
+RUN composer install --prefer-dist --no-progress --no-interaction --no-scripts --no-autoloader
 
 # Copia el resto de la aplicación al contenedor
 COPY . .
-
-# Compila los activos (incluyendo Tailwind CSS)
-RUN npm run build
 
 # Configura permisos correctos y aplica permisos específicos para Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
