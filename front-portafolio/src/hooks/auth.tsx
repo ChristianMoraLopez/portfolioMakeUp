@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { AxiosError } from 'axios';
 
+
 interface User {
   id: number;
   name: string;
