@@ -1,5 +1,6 @@
+// src/pages/CheckRole.js
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from '@/lib/axios'; // Asegúrate de importar desde la configuración adecuada
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 
@@ -10,9 +11,7 @@ const CheckRole = () => {
   useEffect(() => {
     const fetchRole = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/check-role', {
-          withCredentials: true,
-        });
+        const response = await axios.get('/check-role'); // Esto usa el URL base configurado
         setRole(response.data.role);
       } catch (error) {
         console.error('Error fetching role:', error);

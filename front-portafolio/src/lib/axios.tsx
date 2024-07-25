@@ -1,12 +1,11 @@
-import Axios from 'axios'
+import Axios from 'axios';
 
 const axios = Axios.create({
     baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
     headers: {
-        'X-Requested-With': 'XMLHttpRequest',
+        // Puedes agregar más headers si es necesario
     },
-    withCredentials: true,
-    withXSRFToken: true
-})
+    withCredentials: true, // Para enviar cookies junto con las solicitudes
+});
 
-export default axios
+export default axios;
