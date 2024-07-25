@@ -1,30 +1,19 @@
 // src/pages/CheckRole.js
-import React, { useEffect, useState } from 'react';
-import axios from '@/lib/axios'; // Asegúrate de importar desde la configuración adecuada
+
+import React from 'react';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
+import useRole from '@/hooks/useRole';
 
 const CheckRole = () => {
-  const [role, setRole] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchRole = async () => {
-      try {
-        const response = await axios.get('/check-role'); // Esto usa el URL base configurado
-        setRole(response.data.role);
-      } catch (error) {
-        console.error('Error fetching role:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRole();
-  }, []);
+  const { role, loading, error } = useRole();
 
   if (loading) {
     return <div className="flex items-center justify-center h-screen text-2xl">Cargando...</div>;
+  }
+
+  if (error) {
+    return <div className="flex items-center justify-center h-screen text-2xl text-red-600">{error}</div>;
   }
 
   return (
