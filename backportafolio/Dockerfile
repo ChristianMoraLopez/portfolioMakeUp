@@ -23,7 +23,8 @@ RUN apt-get update \
         unzip \
         git \
         default-mysql-client \
-        libmysqlclient-dev \
+        libmariadb-dev \
+        libmariadb-dev-compat \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
