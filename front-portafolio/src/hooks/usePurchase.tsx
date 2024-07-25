@@ -1,5 +1,7 @@
-import { useState, useCallback } from 'react';
-import axios from 'axios';
+import React from 'react';
+import axios, { AxiosError } from 'axios';
+import { useRouter } from 'next/router';
+import { useAuth } from './auth';
 
 interface PurchaseData {
   amount: string;
@@ -7,63 +9,55 @@ interface PurchaseData {
   referenceCode: string;
 }
 
-const usePurchase = () => {
-  const [purchaseData, setPurchaseData] = useState<PurchaseData | null>(null);
-  const [error, setError] = useState<string | null>(null);
+export const usePurchase = () => {
+  const router = useRouter();
+  const { csrf } = useAuth(); // Se usa solo en funciones que requieren autenticación
 
-  const fetchPurchaseData = useCallback(async (amount: string, description: string, referenceCode: string) => {
+  // Estado para almacenar el error
+  const [error, setError] = React.useState<string | null>(null);
+
+  const handleSubmit = async (purchaseData: PurchaseData) => {
     try {
-      const response = await axios.post<PurchaseData>('http://localhost:8000/generate-signature', {
-        amount,
-        description,
-        referenceCode,
+      await csrf(); // Establecer el token CSRF
+
+      // Verifica si el token de autenticación está presente en el almacenamiento local
+      const authToken = localStorage.getItem('authToken');
+      if (!authToken) {
+        throw new Error('Authentication token not found.');
+      }
+
+      const response = await axios.post('/payment/initiate', purchaseData, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`, // Obtén el token de tu almacenamiento local
+        },
       });
 
-      setPurchaseData(response.data);
-      setError(null);
-    } catch (error) {
-      console.error('Error generating signature:', error);
+      // Redirige al usuario a la página de confirmación de pago
+      router.push('/payment/confirmation');
+    } catch (error: unknown) {
+      let errorMessage = 'An unexpected error occurred.';
+
       if (axios.isAxiosError(error)) {
-        setError(`Error: ${error.response?.status} - ${error.response?.statusText}`);
+        // La respuesta del error está disponible
+        errorMessage = error.response?.data?.message || 'Error initiating payment.';
+        console.error('Error initiating payment:', {
+          message: error.message,
+          status: error.response?.status,
+          data: error.response?.data,
+        });
+      } else if (error instanceof Error) {
+        // Error estándar
+        errorMessage = error.message;
+        console.error('Error initiating payment:', error.message);
       } else {
-        setError('An unexpected error occurred. Please try again.');
+        // Manejo de errores no esperados
+        console.error('Unexpected error:', error);
       }
+
+      // Actualiza el estado del error
+      setError(errorMessage);
     }
-  }, []);
-
-  const handleSubmit = useCallback(async (data: PurchaseData) => {
-    try {
-      const response = await axios.post<PurchaseData>('http://localhost:8000/generate-signature', data);
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = 'https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu/';
-
-      Object.entries(response.data).forEach(([key, value]) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = value;
-        form.appendChild(input);
-      });
-
-      document.body.appendChild(form);
-      form.submit();
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      if (axios.isAxiosError(error)) {
-        setError(`Error: ${error.response?.status} - ${error.response?.statusText}`);
-      } else {
-        setError('An unexpected error occurred. Please try again.');
-      }
-    }
-  }, []);
-
-  return {
-    purchaseData,
-    error,
-    fetchPurchaseData,
-    handleSubmit,
   };
-};
 
-export default usePurchase;
+  return { handleSubmit, error };
+};

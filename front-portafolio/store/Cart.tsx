@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode, Dispatch } from 'react';
 
-
 // Define the Service type explicitly
 export interface Service {
   id: number;

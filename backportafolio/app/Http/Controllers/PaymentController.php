@@ -8,36 +8,77 @@ use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends Controller
 {
-    private $apiKey = '4Vj8eK4rloUd272L48hsrarnUA';
-    private $merchantId = '508029';
-    private $accountId = '512321';
+    private $isTest = true; // Cambia esto a false para usar los datos de producción
 
-    public function generateSignature(Request $request)
+    private $apiKey;
+    private $merchantId;
+    private $accountId;
+    private $url;
+
+    public function __construct()
     {
-        $referenceCode = $request->input('referenceCode');
-        $amount = $request->input('amount');
-        $currency = $request->input('currency');
-
-        $signature = md5("{$this->apiKey}~{$this->merchantId}~{$referenceCode}~{$amount}~{$currency}");
-
-        return response()->json(['signature' => $signature]);
+        if ($this->isTest) {
+            // Datos de prueba
+            $this->apiKey = '4Vj8eK4rloUd272L48hsrarnUA';
+            $this->merchantId = '508029';
+            $this->accountId = '512321';
+            $this->url = 'https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu/';
+        } else {
+            // Datos de producción
+            $this->apiKey = 'tsG2CYzQLRDpQhkj6wmj6h5siZ';
+            $this->merchantId = '5poAbwFB9ewb47Y';
+            $this->accountId = 'PKh78itZ9rC91uP1W0E28G836Y';
+            $this->url = 'https://checkout.payulatam.com/ppp-web-gateway-payu/';
+        }
     }
 
+    public function initiatePayment(Request $request)
+{
+    $request->validate([
+        'referenceCode' => 'required|string',
+        'amount' => 'required|numeric',
+        'currency' => 'required|string',
+        'buyerEmail' => 'required|email',
+        'description' => 'required|string',
+    ]);
+
+    $referenceCode = $request->input('referenceCode');
+    $amount = number_format($request->input('amount'), 2, '.', '');
+    $currency = $request->input('currency');
+    $buyerEmail = $request->input('buyerEmail');
+    $description = $request->input('description');
+
+    $paymentData = [
+        'merchantId' => $this->merchantId,
+        'accountId' => $this->accountId,
+        'description' => $description,
+        'referenceCode' => $referenceCode,
+        'amount' => $amount,
+        'tax' => '0',
+        'taxReturnBase' => '0',
+        'currency' => $currency,
+        'buyerEmail' => $buyerEmail,
+        'responseUrl' => route('payment.response'),
+        'confirmationUrl' => route('payment.confirmation'),
+        'test' => $this->isTest ? '1' : '0',
+    ];
+
+    // Generate the signature
+    $signature = md5($this->apiKey . "~" . $this->merchantId . "~" . $referenceCode . "~" . $amount . "~" . $currency);
+    $paymentData['signature'] = $signature;
+
+    // Generate the checkout URL
+    $checkoutUrl = $this->url . '?' . http_build_query($paymentData);
+
+    // Return JSON response with redirect URL
+    return response()->json(['redirectUrl' => $checkoutUrl]);
+}
     public function handleConfirmation(Request $request)
     {
         $referenceCode = $request->input('reference_sale');
         $transactionState = $request->input('state_pol');
-        $signature = $request->input('signature');
         $TX_VALUE = $request->input('TX_VALUE');
         $currency = $request->input('currency');
-
-        $newValue = number_format($TX_VALUE, 1, '.', '');
-        $firmaCadena = "{$this->apiKey}~{$this->merchantId}~{$referenceCode}~{$newValue}~{$currency}~{$transactionState}";
-        $firmaCreada = md5($firmaCadena);
-
-        if (strtoupper($signature) != strtoupper($firmaCreada)) {
-            return response()->json(['status' => 'error', 'message' => 'Firma no válida.']);
-        }
 
         if ($transactionState == 4) {
             $estadoTx = "Transacción aprobada";
