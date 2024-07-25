@@ -1,5 +1,3 @@
-'use client'
-
 import React, { useState, useEffect, FormEvent, ChangeEvent } from 'react';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
@@ -9,6 +7,7 @@ import Link from 'next/link';
 import { useAuth } from '@/hooks/auth';
 import { useRouter } from 'next/router';
 import AuthSessionStatus from '@/app/(auth)/AuthSessionStatus';
+import { Loader2 } from 'lucide-react'; // Import the loader icon
 
 const LoginPage: React.FC = () => {
     const router = useRouter();
@@ -23,6 +22,7 @@ const LoginPage: React.FC = () => {
     const [shouldRemember, setShouldRemember] = useState<boolean>(false);
     const [errors, setErrors] = useState<{ [key: string]: string[] }>({});
     const [status, setStatus] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(false); // New state for loading
 
     useEffect(() => {
         const reset = router.query.reset as string;
@@ -35,14 +35,17 @@ const LoginPage: React.FC = () => {
 
     const submitForm = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setIsLoading(true); // Set loading to true when form is submitted
 
-        login({
+        await login({
             email,
             password,
             remember: shouldRemember,
             setErrors,
             setStatus,
         });
+
+        setIsLoading(false); // Set loading to false after login attempt
     };
 
     return (
@@ -63,7 +66,6 @@ const LoginPage: React.FC = () => {
                             required
                             autoFocus
                         />
-                        {/* Display errors for 'email' */}
                         {errors['email'] && errors['email'].map((error, index) => (
                             <InputError key={index} messages={[error]} className="mt-2" />
                         ))}
@@ -81,7 +83,6 @@ const LoginPage: React.FC = () => {
                             required
                             autoComplete="current-password"
                         />
-                        {/* Display errors for 'password' */}
                         {errors['password'] && errors['password'].map((error, index) => (
                             <InputError key={index} messages={[error]} className="mt-2" />
                         ))}
@@ -108,8 +109,19 @@ const LoginPage: React.FC = () => {
                         <Link href="/signup" className="underline text-sm text-gray-600 hover:text-gray-900">
                             Register
                         </Link>
-                        <Button type="submit" className="ml-4 bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600">
-                            Login
+                        <Button 
+                            type="submit" 
+                            className="ml-4 bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 flex items-center"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Logging in...
+                                </>
+                            ) : (
+                                'Login'
+                            )}
                         </Button>
                     </div>
                 </form>

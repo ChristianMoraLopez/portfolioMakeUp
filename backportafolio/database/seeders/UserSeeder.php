@@ -10,34 +10,35 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-        // Verificar si el usuario ya existe
-        $user = User::where('email', 'christianmoralopez@hotmail.com')->first();
-        $user2 = User::where('email', 'nico.gomezita@gmail.com')->first();
-
-
-        if (!$user) {
-            // Crear el usuario "Christian Mora"
-            $user = User::create([
+        // Verificar si el usuario "Christian Mora" ya existe
+        $user = User::firstOrCreate(
+            ['email' => 'christianmoralopez@hotmail.com'],
+            [
                 'name' => 'Christian Mora',
-                'email' => 'christianmoralopez@hotmail.com',
                 'password' => bcrypt('password'), // Cambia 'password' por la contraseña real si es necesario
-            ]);
+            ]
+        );
 
-        }
-        if (!$user2) {
-            // Crear el usuario "Nico Gomez"
-            $user2 = User::create([
+        // Verificar si el usuario "Nico Gomez" ya existe
+        $user2 = User::firstOrCreate(
+            ['email' => 'nico.gomezita@gmail.com'],
+            [
                 'name' => 'Nico Gomez',
-                'email' => 'nico.gomezita@gmail.com',
-            'password' => bcrypt('46824682'), // Cambia 'password' por la contraseña real si es necesario
-        ]);
+                'password' => bcrypt('46824682'), // Cambia 'password' por la contraseña real si es necesario
+            ]
+        );
 
-    }
+        // Asignar el rol 'admin' al usuario "Christian Mora"
+        $role = Role::where('name', 'admin')->first();
+        $roleUser = Role::where('name', 'user')->first();
 
-        // Asignar el rol 'admin' al usuario
-        $role = Role::where('name', 'admin')->first(); // Corregido: buscar el rol por 'name'
-        if ($role && !$user->hasRole('admin')) {
-            $user->assignRole($role);
+        if ($role) {
+            if (!$user->hasRole('admin')) {
+                $user->assignRole($role);
+            }
+            if (!$user2->hasRole('admin')) {
+                $user2->assignRole($roleUser);
+            }
         }
     }
 }
