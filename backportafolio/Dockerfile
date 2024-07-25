@@ -66,6 +66,7 @@ COPY .env.example .env
 # Genera la clave de la aplicación y limpia la configuración
 RUN php artisan key:generate --force \
     && php artisan config:clear \
+    && php artisan cache:clear \
     && php artisan config:cache
 
 # Ejecutar las migraciones durante la construcción
