@@ -1,6 +1,6 @@
-/** @type {import('next').NextConfig} */
 import path from 'path';
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     domains: [
@@ -13,6 +13,14 @@ const nextConfig = {
   webpack(config) {
     config.resolve.alias['@'] = path.resolve('src');
     return config;
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://portafoliomakeup-hkwusnxq.b4a.run/api/:path*',
+      },
+    ];
   },
 };
 
