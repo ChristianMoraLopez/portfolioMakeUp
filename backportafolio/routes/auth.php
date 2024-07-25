@@ -56,10 +56,7 @@ Route::middleware(['web'])->group(function () {
         // Rutas de logout
         Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
-        // Rutas de PaymentController
-        Route::post('/payment/initiate', [PaymentController::class, 'initiatePayment'])->name('payment.initiate');
-        Route::get('/payment/confirmation', [PaymentController::class, 'handleConfirmation'])->name('payment.confirmation');
-        Route::get('/mis-compras', [PaymentController::class, 'misCompras'])->name('mis.compras');
+
     });
 
     // Otras rutas públicas no autenticadas
