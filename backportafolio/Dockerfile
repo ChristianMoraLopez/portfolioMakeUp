@@ -70,8 +70,6 @@ COPY .env.example .env
 # Limpia la caché de configuración de Laravel
 RUN php artisan config:cache
 
-# Genera una clave de aplicación si no está presente en el archivo .env
-RUN php artisan key:generate || true
 
 # Establecer el usuario no root
 RUN useradd -ms /bin/bash appuser \
