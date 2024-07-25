@@ -45,7 +45,7 @@ FROM base AS build
 COPY composer.json composer.lock ./
 
 # Instala dependencias de Composer
-RUN composer install --prefer-dist --no-progress --no-interaction --no-scripts --no-autoloader
+RUN composer install --prefer-dist --no-progress --no-interaction --no-scripts
 
 # Copia el resto de la aplicación al contenedor
 COPY . .
