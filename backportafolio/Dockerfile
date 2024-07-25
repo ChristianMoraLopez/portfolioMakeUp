@@ -81,5 +81,5 @@ RUN useradd -ms /bin/bash appuser \
 
 USER appuser
 
-# Ejecutar el servidor Artisan
-CMD ["php", "/var/www/html/artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Ejecutar el servidor de PHP
+CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
