@@ -58,6 +58,9 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 RUN touch /var/www/html/database/database.sqlite \
     && chown www-data:www-data /var/www/html/database/database.sqlite
 
+# Genera una clave de aplicación si no está presente en el archivo .env
+RUN [ -z "$(grep '^APP_KEY=' .env)" ] && php artisan key:generate
+
 # Imagen final
 FROM base AS final
 
@@ -66,6 +69,9 @@ COPY --from=build /var/www/html /var/www/html
 
 # Asegúrate de que el archivo .env esté presente
 COPY .env.example .env
+
+# Limpia la caché de configuración de Laravel
+RUN php artisan config:cache
 
 # Establecer el usuario no root
 RUN useradd -ms /bin/bash appuser \
