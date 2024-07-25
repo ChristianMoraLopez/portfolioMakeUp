@@ -61,6 +61,7 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
     && chmod -R 755 /var/www/html/storage/framework/cache \
     && chmod -R 755 /var/www/html/storage
 
+
 # Crea el archivo de base de datos SQLite
 RUN touch /var/www/html/database/database.sqlite \
     && chown www-data:www-data /var/www/html/database/database.sqlite
