@@ -11,10 +11,6 @@ EXPOSE 8000
 RUN apt-get update \
     && apt-get install -y \
         libpq-dev \
-        zlib1g-dev \
-        curl \
-        gnupg \
-        build-essential \
         libpng-dev \
         libjpeg62-turbo-dev \
         libfreetype6-dev \
@@ -27,6 +23,7 @@ RUN apt-get update \
         unzip \
         git \
         default-mysql-client \
+        libmysqlclient-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
