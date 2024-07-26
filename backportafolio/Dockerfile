@@ -30,6 +30,7 @@ RUN apt-get update \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_pgsql pdo_mysql mbstring zip exif pcntl gd bcmath
 
+
 # Instala Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
@@ -64,9 +65,7 @@ COPY .env.example .env
 
 # Genera la clave de la aplicación y limpia la configuración
 RUN php artisan key:generate --force \
-    && php artisan config:clear \
-    && php artisan cache:clear \
-    && php artisan config:cache
+
 
 # Ejecutar las migraciones durante la construcción
 RUN php artisan migrate --force
