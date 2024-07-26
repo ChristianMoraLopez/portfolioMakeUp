@@ -39,7 +39,7 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'http://192.168.20.22:3000',
+        'Localhost:3000',
         'https://portfolio-make-up-git-main-christianmoralopezs-projects.vercel.app',
         'https://portfolio-make-4foqlc14q-christianmoralopezs-projects.vercel.app',
         'https://portfolio-make-up.vercel.app',
