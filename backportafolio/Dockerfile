@@ -40,6 +40,9 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN composer config --global process-timeout 2000 \
     && composer config --global allow-plugins.composer/package-versions-deprecated false
 
+# Establece la variable de entorno para permitir la ejecución de plugins como superusuario
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 # Etapa de construcción para instalar dependencias y preparar la aplicación
 FROM base AS build
 
@@ -72,8 +75,12 @@ RUN mkdir -p /var/www/html/database \
     && touch /var/www/html/database/database.sqlite \
     && chown www-data:www-data /var/www/html/database/database.sqlite
 
-# Ejecuta las migraciones para crear las tablas necesarias y comandos de Laravel para limpiar la caché
+# Copia los archivos compilados del build
+COPY --from=build /var/www/html /var/www/html
+
+# Genera la clave de la aplicación y limpia la configuración
 RUN composer dump-autoload \
+    && php artisan key:generate --force \
     && php artisan migrate --force \
     && php artisan config:clear \
     && php artisan route:clear \
@@ -82,15 +89,6 @@ RUN composer dump-autoload \
     && php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache
-
-# Copia los archivos compilados del build
-COPY --from=build /var/www/html /var/www/html
-
-# Genera la clave de la aplicación y limpia la configuración
-RUN php artisan key:generate --force
-
-# Ejecutar las migraciones durante la construcción
-RUN php artisan migrate --force
 
 # Establecer el usuario no root
 RUN useradd -ms /bin/bash appuser \
