@@ -46,7 +46,7 @@ ENV COMPOSER_ALLOW_SUPERUSER 1
 # Etapa de construcción para instalar dependencias y preparar la aplicación
 FROM base AS build
 
-# Copia los archivos composer.json y composer.lock y ejecuta la instalación de dependencias antes de copiar el resto del proyecto para aprovechar la caché
+# Copia los archivos composer.json y composer.lock
 COPY composer.json composer.lock ./
 
 # Instala dependencias de Composer
