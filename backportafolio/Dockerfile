@@ -33,7 +33,6 @@ RUN apt-get update \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql pdo_pgsql mbstring zip exif pcntl gd bcmath
 
-
 # Instala Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
@@ -68,9 +67,9 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 # Imagen final
 FROM base AS final
 
-
-# Crea el archivo de base de datos SQLite
-RUN touch /var/www/html/database/database.sqlite \
+# Crea el directorio y el archivo de base de datos SQLite
+RUN mkdir -p /var/www/html/database \
+    && touch /var/www/html/database/database.sqlite \
     && chown www-data:www-data /var/www/html/database/database.sqlite
 
 # Ejecuta las migraciones para crear las tablas necesarias y comandos de Laravel para limpiar la caché
@@ -87,19 +86,18 @@ RUN composer dump-autoload \
 # Copia los archivos compilados del build
 COPY --from=build /var/www/html /var/www/html
 
-
 # Genera la clave de la aplicación y limpia la configuración
-RUN php artisan key:generate --force \
-
+RUN php artisan key:generate --force
 
 # Ejecutar las migraciones durante la construcción
 RUN php artisan migrate --force
 
 # Establecer el usuario no root
 RUN useradd -ms /bin/bash appuser \
-&& chown -R appuser:appuser /var/www/html
+    && chown -R appuser:appuser /var/www/html
 
 USER appuser
+
 # Asegúrate de que el archivo .env esté presente
 COPY .env.example .env
 
