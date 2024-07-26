@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import Cookies from 'js-cookie';
 
-const instance = axios.create({
+const instance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
   withCredentials: true,
   headers: {
@@ -10,25 +10,40 @@ const instance = axios.create({
   },
 });
 
-instance.interceptors.request.use(config => {
-  const csrfToken = Cookies.get('XSRF-TOKEN');
-  if (csrfToken) {
-    config.headers['X-CSRF-TOKEN'] = csrfToken;
-  }
-  return config;
-}, error => {
-  return Promise.reject(error);
-});
+let isRefreshing = false;
+let refreshPromise: Promise<AxiosResponse> | null = null;
 
-// Add a response interceptor to handle CSRF token refreshing
+const refreshCSRFToken = async () => {
+  if (!isRefreshing) {
+    isRefreshing = true;
+    refreshPromise = instance.get('/sanctum/csrf-cookie').finally(() => {
+      isRefreshing = false;
+    });
+  }
+  return refreshPromise;
+};
+
+instance.interceptors.request.use(
+  async (config: InternalAxiosRequestConfig) => {
+    let token = Cookies.get('XSRF-TOKEN');
+    if (!token) {
+      await refreshCSRFToken();
+      token = Cookies.get('XSRF-TOKEN');
+    }
+    config.headers['X-XSRF-TOKEN'] = token;
+    return config;
+  },
+  (error: AxiosError) => Promise.reject(error)
+);
+
 instance.interceptors.response.use(
   response => response,
-  async error => {
-    if (error.response && error.response.status === 419) {
-      // CSRF token mismatch, try to refresh the token
-      await instance.get('/sanctum/csrf-cookie');
-      // Retry the original request
-      return instance(error.config);
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    if (error.response?.status === 419 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      await refreshCSRFToken();
+      return instance(originalRequest);
     }
     return Promise.reject(error);
   }
