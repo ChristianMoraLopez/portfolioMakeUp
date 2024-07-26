@@ -11,6 +11,10 @@ EXPOSE 8000
 RUN apt-get update \
     && apt-get install -y \
         libpq-dev \
+        zlib1g-dev \
+        curl \
+        gnupg \
+        build-essential \
         libpng-dev \
         libjpeg62-turbo-dev \
         libfreetype6-dev \
@@ -22,13 +26,12 @@ RUN apt-get update \
         vim \
         unzip \
         git \
-        default-mysql-client \
-        libmariadb-dev \
-        libmariadb-dev-compat \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_pgsql pdo_mysql mbstring zip exif pcntl gd bcmath
+    && docker-php-ext-install pdo_mysql pdo_pgsql mbstring zip exif pcntl gd bcmath
 
 
 # Instala Composer
@@ -52,16 +55,38 @@ COPY . .
 
 # Configura permisos correctos y aplica permisos específicos para Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 777 /var/www/html/storage/logs \
+    && chmod -R 755 /var/www/html/storage/framework \
+    && chmod -R 777 /var/www/html/storage/framework/views \
+    && chmod -R 777 /var/www/html/storage/framework/sessions \
+    && chmod -R 777 /var/www/html/storage/framework/cache \
+    && chmod -R 755 /var/www/html/storage \
+    && chmod -R o+w /var/www/html/storage
 
 # Imagen final
 FROM base AS final
 
+
+# Crea el archivo de base de datos SQLite
+RUN touch /var/www/html/database/database.sqlite \
+    && chown www-data:www-data /var/www/html/database/database.sqlite
+
+# Ejecuta las migraciones para crear las tablas necesarias y comandos de Laravel para limpiar la caché
+RUN composer dump-autoload \
+    && php artisan migrate --force \
+    && php artisan config:clear \
+    && php artisan route:clear \
+    && php artisan cache:clear \
+    && php artisan view:clear \
+    && php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
+
 # Copia los archivos compilados del build
 COPY --from=build /var/www/html /var/www/html
 
-# Asegúrate de que el archivo .env esté presente
-COPY .env.example .env
 
 # Genera la clave de la aplicación y limpia la configuración
 RUN php artisan key:generate --force \
@@ -72,9 +97,11 @@ RUN php artisan migrate --force
 
 # Establecer el usuario no root
 RUN useradd -ms /bin/bash appuser \
-    && chown -R appuser:appuser /var/www/html
+&& chown -R appuser:appuser /var/www/html
 
 USER appuser
+# Asegúrate de que el archivo .env esté presente
+COPY .env.example .env
 
 # Ejecutar el servidor de PHP
 CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
