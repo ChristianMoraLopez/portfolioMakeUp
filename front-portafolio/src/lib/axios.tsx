@@ -24,7 +24,19 @@ instance.interceptors.request.use(async (config) => {
     // Agregar el token CSRF a los encabezados de la solicitud
     config.headers['X-XSRF-TOKEN'] = csrfToken;
   } else {
-    console.log('Token CSRF no encontrado en las cookies');
+    console.warn('Token CSRF no encontrado en las cookies. Intentando obtener un nuevo token CSRF.');
+    try {
+      await instance.get('/sanctum/csrf-cookie'); // Intentar refrescar el token CSRF
+      const newCsrfToken = Cookies.get('XSRF-TOKEN');
+      if (newCsrfToken) {
+        console.log('Nuevo token CSRF obtenido:', newCsrfToken);
+        config.headers['X-XSRF-TOKEN'] = newCsrfToken;
+      } else {
+        console.error('No se pudo obtener un nuevo token CSRF.');
+      }
+    } catch (error) {
+      console.error('Error al intentar obtener un nuevo token CSRF:', error);
+    }
   }
   
   // Imprimir los encabezados de la solicitud para depuración
@@ -51,6 +63,9 @@ instance.interceptors.response.use(
       try {
         await instance.get('/sanctum/csrf-cookie'); // Intentar refrescar el token CSRF
         console.log('Token CSRF refrescado. Reintentando la solicitud original...');
+        
+        // Imprimir detalles de la solicitud original que se reintenta
+        console.log('Detalles de la solicitud original:', error.config);
         
         return instance(error.config); // Reintentar la solicitud original
       } catch (csrfError) {
