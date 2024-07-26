@@ -15,7 +15,26 @@ return [
     |
     */
 
-    'paths' => ['*'], // Esto cubre todas las rutas, incluyendo las que has listado específicamente
+    'paths' => ['*',
+
+            'api/*',
+            'login',
+            'logout',
+            'register',
+            'forgot-password',
+            'reset-password',
+            'email/verification-notification',
+            'verify-email/*',
+            'dashboard',
+            'services',
+            'services/*',
+            'profile',
+            'password',
+            'delete-account',
+            'logout',
+            'payment',
+
+], // Esto cubre todas las rutas, incluyendo las que has listado específicamente
 
     'allowed_methods' => ['*'],
 
