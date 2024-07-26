@@ -40,11 +40,11 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN composer config --global process-timeout 2000 \
     && composer config --global allow-plugins.composer/package-versions-deprecated false
 
-# Etapa de construcción para instalar dependencias y preparar la aplicación
-FROM base AS build
-
 # Establece la variable de entorno para permitir plugins de Composer como superusuario
 ENV COMPOSER_ALLOW_SUPERUSER 1
+
+# Etapa de construcción para instalar dependencias y preparar la aplicación
+FROM base AS build
 
 # Copia los archivos composer.json y composer.lock y ejecuta la instalación de dependencias antes de copiar el resto del proyecto para aprovechar la caché
 COPY composer.json composer.lock ./
@@ -66,7 +66,6 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
     && chmod -R 777 /var/www/html/storage/framework/cache \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R o+w /var/www/html/storage
-
 
 # Imagen final
 FROM base AS final
