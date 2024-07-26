@@ -10,21 +10,23 @@ const instance = axios.create({
   },
 });
 
-instance.interceptors.request.use(async config => {
+instance.interceptors.request.use(config => {
   const token = Cookies.get('XSRF-TOKEN');
-  if (!token) {
-    await instance.get('/sanctum/csrf-cookie');
+  if (token) {
+    config.headers['X-XSRF-TOKEN'] = token;
   }
-  config.headers['X-XSRF-TOKEN'] = Cookies.get('XSRF-TOKEN');
   return config;
 }, error => {
   return Promise.reject(error);
 });
+
 instance.interceptors.response.use(
   response => response,
   async error => {
     if (error.response && error.response.status === 419) {
+      // CSRF token mismatch, try to refresh the token
       await instance.get('/sanctum/csrf-cookie');
+      // Retry the original request
       return instance(error.config);
     }
     return Promise.reject(error);
