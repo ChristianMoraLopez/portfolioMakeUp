@@ -62,6 +62,11 @@ Route::middleware(['web'])->group(function () {
     // Otras rutas públicas no autenticadas
     Route::get('/check-role', [RoleCheckController::class, 'checkRole']);
     Route::get('/services', [ServiceController::class, 'index']);
+    // Route for getting CSRF token
+Route::get('/sanctum/csrf-cookie', function () {
+    return response()->json(['message' => 'CSRF cookie set']);
+});
+
 });
 
 // Route for getting CSRF token
