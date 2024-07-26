@@ -8,6 +8,7 @@ const instance = axios.create({
   headers: {
     'X-Requested-With': 'XMLHttpRequest',
     'Accept': 'application/json',
+    'Content-Type': 'application/json', // Asegurarse de que el tipo de contenido sea JSON
   },
   timeout: 10000, // Tiempo de espera en milisegundos (10 segundos)
 });
@@ -17,15 +18,26 @@ instance.interceptors.request.use(async (config) => {
   console.log('Interceptor de solicitud activado');
   
   // Obtener el token CSRF de las cookies
-  const token = document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN='));
-  if (token) {
-    const csrfToken = token.split('=')[1];
+  const csrfToken = Cookies.get('XSRF-TOKEN');
+  if (csrfToken) {
     console.log('Token CSRF encontrado:', csrfToken);
     
     // Agregar el token CSRF a los encabezados de la solicitud
     config.headers['X-XSRF-TOKEN'] = csrfToken;
   } else {
-    console.log('Token CSRF no encontrado en las cookies');
+    console.warn('Token CSRF no encontrado en las cookies. Intentando obtener un nuevo token CSRF.');
+    try {
+      await instance.get('/sanctum/csrf-cookie'); // Intentar refrescar el token CSRF
+      const newCsrfToken = Cookies.get('XSRF-TOKEN');
+      if (newCsrfToken) {
+        console.log('Nuevo token CSRF obtenido:', newCsrfToken);
+        config.headers['X-XSRF-TOKEN'] = newCsrfToken;
+      } else {
+        console.error('No se pudo obtener un nuevo token CSRF.');
+      }
+    } catch (error) {
+      console.error('Error al intentar obtener un nuevo token CSRF:', error);
+    }
   }
   
   // Imprimir los encabezados de la solicitud para depuración
@@ -52,6 +64,9 @@ instance.interceptors.response.use(
       try {
         await instance.get('/sanctum/csrf-cookie'); // Intentar refrescar el token CSRF
         console.log('Token CSRF refrescado. Reintentando la solicitud original...');
+        
+        // Imprimir detalles de la solicitud original que se reintenta
+        console.log('Detalles de la solicitud original:', error.config);
         
         return instance(error.config); // Reintentar la solicitud original
       } catch (csrfError) {
