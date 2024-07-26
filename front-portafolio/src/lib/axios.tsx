@@ -17,9 +17,8 @@ instance.interceptors.request.use(async (config) => {
   console.log('Interceptor de solicitud activado');
   
   // Obtener el token CSRF de las cookies
-  const token = document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN='));
-  if (token) {
-    const csrfToken = token.split('=')[1];
+  const csrfToken = Cookies.get('XSRF-TOKEN');
+  if (csrfToken) {
     console.log('Token CSRF encontrado:', csrfToken);
     
     // Agregar el token CSRF a los encabezados de la solicitud
