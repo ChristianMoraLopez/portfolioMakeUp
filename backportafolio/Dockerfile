@@ -47,7 +47,6 @@ RUN composer config --global process-timeout 2000 \
 
 # Copia los archivos composer.json y package.json y ejecuta la instalación de dependencias antes de copiar el resto del proyecto para aprovechar la caché
 COPY composer.json composer.lock ./
-COPY package.json package-lock.json ./
 
 # Instala dependencias de Composer y Node.js
 RUN composer install --prefer-dist --no-progress --no-interaction --no-scripts --no-autoloader
