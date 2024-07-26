@@ -43,6 +43,9 @@ RUN composer config --global process-timeout 2000 \
 # Etapa de construcción para instalar dependencias y preparar la aplicación
 FROM base AS build
 
+# Establece la variable de entorno para permitir plugins de Composer como superusuario
+ENV COMPOSER_ALLOW_SUPERUSER 1
+
 # Copia los archivos composer.json y composer.lock y ejecuta la instalación de dependencias antes de copiar el resto del proyecto para aprovechar la caché
 COPY composer.json composer.lock ./
 
@@ -64,9 +67,6 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
     && chmod -R 755 /var/www/html/storage \
     && chmod -R o+w /var/www/html/storage
 
-# Copia el archivo de certificado raíz (si se está utilizando esta opción)
-# COPY path/to/root.crt /root/.postgresql/root.crt
-# RUN chmod 600 /root/.postgresql/root.crt
 
 # Imagen final
 FROM base AS final
