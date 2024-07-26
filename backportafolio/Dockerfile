@@ -64,11 +64,16 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
     && chmod -R 755 /var/www/html/storage \
     && chmod -R o+w /var/www/html/storage
 
+# Copia el archivo de certificado raíz (si se está utilizando esta opción)
+# COPY path/to/root.crt /root/.postgresql/root.crt
+# RUN chmod 600 /root/.postgresql/root.crt
+
 # Imagen final
 FROM base AS final
 
-# Crea el archivo de base de datos SQLite
-RUN touch /var/www/html/database/database.sqlite \
+# Crea el directorio de base de datos y el archivo de base de datos SQLite
+RUN mkdir -p /var/www/html/database \
+    && touch /var/www/html/database/database.sqlite \
     && chown www-data:www-data /var/www/html/database/database.sqlite
 
 # Ejecuta las migraciones para crear las tablas necesarias y comandos de Laravel para limpiar la caché
