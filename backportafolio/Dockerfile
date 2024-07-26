@@ -50,6 +50,7 @@ COPY composer.json composer.lock ./
 
 # Instala dependencias de Composer y Node.js
 RUN composer install --prefer-dist --no-progress --no-interaction --no-scripts --no-autoloader
+COPY root.crt /var/www/html/root.crt
 
 
 # Copia el resto de la aplicación al contenedor
