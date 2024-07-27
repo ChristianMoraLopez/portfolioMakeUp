@@ -12,25 +12,29 @@ const instance = axios.create({
   withCredentials: true,
 });
 
+// Función para obtener la cookie CSRF
+const getCSRFToken = async () => {
+  const csrfToken = Cookies.get('XSRF-TOKEN');
+  if (!csrfToken) {
+    await instance.get('/sanctum/csrf-cookie');
+  }
+};
 
 // Configurar un interceptor para incluir tokens en las solicitudes
 instance.interceptors.request.use(
-  config => {
-    // Incluir el token CSRF en la solicitud
-    const csrfToken = Cookies.get('XSRF-TOKEN');
-    if (csrfToken) {
-      config.headers['X-XSRF-TOKEN'] = csrfToken;
-    }
+  async (config) => {
+    // Asegurarse de que el token CSRF esté configurado antes de cada solicitud
+    await getCSRFToken();
 
-    // Incluir el token de autenticación si está disponible
-    const token = Cookies.get('token');
+    // Incluir el token de autenticación si está disponible en la memoria/almacenamiento
+    const token = localStorage.getItem('token'); // O como estés almacenando el token
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
 
     return config;
   },
-  error => {
+  (error) => {
     return Promise.reject(error);
   }
 );
