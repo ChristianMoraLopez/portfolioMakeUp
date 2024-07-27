@@ -110,7 +110,7 @@ const CartPage: React.FC = () => {
                   <span className="font-semibold">Total</span>
                   <span className="font-semibold">${(parseFloat(amount) + parseFloat(tax)).toFixed(2)} COP</span>
                 </div>
-                <form method="post" action="https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu/">
+                <form method="post" action="https://checkout.payulatam.com/ppp-web-gateway-payu/">
                   <input name="merchantId" type="hidden" value={merchantId} />
                   <input name="accountId" type="hidden" value={accountId} />
                   <input name="description" type="hidden" value={description} />
