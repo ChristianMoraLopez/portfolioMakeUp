@@ -83,6 +83,6 @@ return [
         'validate_csrf_token' => Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
     ],
 
-    
+    'same_site' => 'none',
 
 ];

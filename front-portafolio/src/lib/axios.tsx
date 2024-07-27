@@ -8,8 +8,8 @@ const instance = axios.create({
     'X-Requested-With': 'XMLHttpRequest',
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    withCredentials: true, // Permitir el envío de cookies
   },
-  withCredentials: true, // Permitir el envío de cookies
 });
 
 // Configurar un interceptor para incluir tokens en las solicitudes
