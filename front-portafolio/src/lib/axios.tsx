@@ -4,13 +4,13 @@ import Cookies from 'js-cookie';
 // Crear una instancia de axios con la configuración inicial
 const instance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
-  withCredentials: true, // Permitir el envío de cookies
   headers: {
     'X-Requested-With': 'XMLHttpRequest',
     'Accept': 'application/json',
     'Content-Type': 'application/json', // Asegurarse de que el tipo de contenido sea JSON
   },
-  timeout: 10000, // Tiempo de espera en milisegundos (10 segundos)
+  
+  withCredentials: true, // Permitir el envío de cookies
 });
 
 // Interceptor de solicitudes para agregar el token CSRF a los encabezados
