@@ -10,9 +10,9 @@ const CartPage: React.FC = () => {
   const { addToCart, removeFromCart } = useCartMutations();
   const [error, setError] = useState<string | null>(null);
 
-  const merchantId = '508029';
-  const accountId = '512321';
-  const apiKey = '4Vj8eK4rloUd272L48hsrarnUA';
+  const merchantId = '1008897';
+  const accountId = '1017706';
+  const apiKey = 'tsG2CYzQLRDpQhkj6wmj6h5siZ';
   const referenceCode = `REF-${Date.now()}`;
   const currency = 'COP';
   const description = 'Compra de productos';
@@ -141,4 +141,3 @@ const CartPage: React.FC = () => {
 };
 
 export default CartPage;
-
