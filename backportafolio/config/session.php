@@ -18,7 +18,7 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'database'),
+    'driver' => env('SESSION_DRIVER', 'cookie'),
 
     /*
     |--------------------------------------------------------------------------
@@ -74,7 +74,6 @@ return [
     */
 
     'connection' => env('SESSION_CONNECTION', 'pgsql'),
-
 
     /*
     |--------------------------------------------------------------------------
@@ -170,7 +169,7 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE', 'true'),
+    'secure' => env('SESSION_SECURE_COOKIE', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -183,7 +182,7 @@ return [
     |
     */
 
-
+    'http_only' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -200,7 +199,7 @@ return [
     |
     */
 
-  'same_site' => env('SESSION_SAME_SITE', 'none'),
+    'same_site' => env('SESSION_SAME_SITE', 'none'),
 
     /*
     |--------------------------------------------------------------------------
