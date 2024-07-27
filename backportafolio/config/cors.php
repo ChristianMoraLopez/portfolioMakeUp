@@ -15,35 +15,34 @@ return [
     |
     */
 
-    'paths' => ['*',
-
-            'api/*',
-            'login',
-            'logout',
-            'register',
-            'forgot-password',
-            'reset-password',
-            'email/verification-notification',
-            'verify-email/*',
-            'dashboard',
-            'services',
-            'services/*',
-            'profile',
-            'password',
-            'delete-account',
-            'logout',
-            'payment',
-
-], // Esto cubre todas las rutas, incluyendo las que has listado específicamente
+    'paths' => [
+        '*', // Esto cubre todas las rutas
+        'api/*',
+        'login',
+        'logout',
+        'register',
+        'forgot-password',
+        'reset-password',
+        'email/verification-notification',
+        'verify-email/*',
+        'dashboard',
+        'services',
+        'services/*',
+        'profile',
+        'password',
+        'delete-account',
+        'logout',
+        'payment',
+    ],
 
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'Localhost:3000',
+        'http://localhost:3000', // Asegúrate de incluir el esquema (http)
         'https://portfolio-make-up-git-main-christianmoralopezs-projects.vercel.app',
         'https://portfolio-make-4foqlc14q-christianmoralopezs-projects.vercel.app',
         'https://portfolio-make-up.vercel.app',
-        env('FRONTEND_URL', ''), // Añade esta línea para usar la URL del frontend desde las variables de entorno
+        env('FRONTEND_URL', ''), // Usa la URL del frontend desde las variables de entorno
     ],
 
     'allowed_origins_patterns' => [],
