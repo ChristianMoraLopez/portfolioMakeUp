@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
 import RandomServiceShowcase from '@components/Services/ServiceRandom';
 import PortfolioCarousel from '@components/Portafolio/Portafolio';
-import api from '../api';
+import axios from '@/lib/axios';
 import { Sparkles, Paintbrush, Camera, Star, Heart, Zap } from 'lucide-react';
 import LoadingAnimation from '@components/Animations/LoadingAnimation';
 
@@ -17,7 +17,7 @@ const HomePage: React.FC = () => {
       setLoading(false);
     }, 2000);
 
-    api.get('/user')
+    axios.get('/user')
       .then(response => {
         setUser(response.data);
       })
