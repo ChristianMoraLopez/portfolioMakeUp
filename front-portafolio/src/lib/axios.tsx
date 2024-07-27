@@ -4,11 +4,11 @@ import Cookies from 'js-cookie';
 // Crear una instancia de axios con la configuración inicial
 const instance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
+  withCredentials: true, // Permitir el envío de cookies
   headers: {
     'X-Requested-With': 'XMLHttpRequest',
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    withCredentials: true, // Permitir el envío de cookies
   },
 });
 
