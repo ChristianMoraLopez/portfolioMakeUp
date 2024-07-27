@@ -9,8 +9,9 @@ const instance = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  withCredentials: true, // Permitir el envío de cookies
+  withCredentials: true,
 });
+
 
 // Configurar un interceptor para incluir tokens en las solicitudes
 instance.interceptors.request.use(
