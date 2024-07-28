@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useCart, useCartMutations } from '@store/Cart';
-import { ShoppingCart, Trash, Plus, Minus } from 'lucide-react';
+import { ShoppingCart, Trash, Plus, Minus, ShoppingBag } from 'lucide-react';
 import md5 from 'crypto-js/md5';
 
 const CartPage: React.FC = () => {
@@ -40,92 +40,94 @@ const CartPage: React.FC = () => {
       setError('Please fill in all required fields.');
       return;
     }
-    // Si la validación pasa, enviamos el formulario
     e.currentTarget.submit();
   };
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-        <ShoppingCart size={64} className="text-gray-400 mb-4" />
-        <h2 className="text-2xl font-bold text-gray-700 mb-4">Your cart is empty</h2>
-        <Link href="/" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">
-          Continue Shopping
+      <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-blue-100 to-purple-100">
+        <ShoppingBag size={80} className="text-purple-500 mb-6" />
+        <h2 className="text-3xl font-bold text-gray-800 mb-4">Your cart is empty</h2>
+        <p className="text-gray-600 mb-8">Looks like you haven&apos;t added anything to your cart yet.</p>
+        <Link href="/" className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-full transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">
+          Start Shopping
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen py-8">
+    <div className="bg-gradient-to-r from-blue-50 to-purple-50 min-h-screen py-12">
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">Shopping Cart</h1>
+        <h1 className="text-4xl font-bold text-gray-800 mb-10 text-center">Your Shopping Cart</h1>
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-            <strong className="font-bold">Error: </strong>
-            <span className="block sm:inline">{error}</span>
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-lg shadow" role="alert">
+            <p className="font-bold">Error</p>
+            <p>{error}</p>
           </div>
         )}
-        <div className="flex flex-col lg:flex-row gap-8">
-          <div className="lg:w-2/3">
+        <div className="flex flex-col lg:flex-row gap-10">
+          <div className="lg:w-2/3 space-y-6">
             {items.map((item) => (
-              <div key={item.id} className="bg-white rounded-lg shadow-md p-6 mb-4 flex flex-col sm:flex-row items-center">
-                <div className="sm:w-1/4 mb-4 sm:mb-0">
-                  <div className="bg-gray-200 h-32 w-32 rounded-lg flex items-center justify-center">
-                    <ShoppingCart size={48} className="text-gray-400" />
+              <div key={item.id} className="bg-white rounded-xl shadow-lg p-6 transition duration-300 ease-in-out transform hover:scale-102 hover:shadow-xl">
+                <div className="flex flex-col sm:flex-row items-center">
+                  <div className="sm:w-1/4 mb-4 sm:mb-0">
+                    <div className="bg-gradient-to-br from-purple-100 to-blue-100 h-32 w-32 rounded-lg flex items-center justify-center shadow-inner">
+                      <ShoppingBag size={48} className="text-purple-500" />
+                    </div>
                   </div>
-                </div>
-                <div className="sm:w-1/2 sm:px-4">
-                  <h2 className="text-xl font-semibold text-gray-800">{item.name}</h2>
-                  <p className="text-gray-600 mt-2">{item.description}</p>
-                  <p className="text-blue-500 font-semibold mt-2">
-                    Price: ${Number(item.price).toFixed(2)}
-                  </p>
-                </div>
-                <div className="sm:w-1/4 flex flex-col items-center sm:items-end mt-4 sm:mt-0">
-                  <div className="flex items-center border rounded-lg overflow-hidden">
-                    <button onClick={() => removeFromCart(item.id)} className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 transition duration-300 ease-in-out">
-                      <Minus size={16} />
-                    </button>
-                    <span className="px-4 py-2 bg-white">{item.quantity}</span>
-                    <button onClick={() => addToCart(item)} className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 transition duration-300 ease-in-out">
-                      <Plus size={16} />
+                  <div className="sm:w-1/2 sm:px-6">
+                    <h2 className="text-2xl font-semibold text-gray-800 mb-2">{item.name}</h2>
+                    <p className="text-gray-600 mb-3">{item.description}</p>
+                    <p className="text-purple-600 font-bold text-xl">
+                      ${Number(item.price).toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="sm:w-1/4 flex flex-col items-center sm:items-end mt-4 sm:mt-0">
+                    <div className="flex items-center border-2 border-purple-200 rounded-full overflow-hidden mb-4">
+                      <button onClick={() => removeFromCart(item.id)} className="bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold py-2 px-4 transition duration-300 ease-in-out">
+                        <Minus size={16} />
+                      </button>
+                      <span className="px-4 py-2 bg-white text-lg font-semibold text-purple-800">{item.quantity}</span>
+                      <button onClick={() => addToCart(item)} className="bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold py-2 px-4 transition duration-300 ease-in-out">
+                        <Plus size={16} />
+                      </button>
+                    </div>
+                    <button onClick={() => removeFromCart(item.id)} className="flex items-center text-red-500 hover:text-red-600 transition duration-300 ease-in-out font-semibold">
+                      <Trash size={18} className="mr-2" /> Remove
                     </button>
                   </div>
-                  <button onClick={() => removeFromCart(item.id)} className="mt-4 flex items-center text-red-500 hover:text-red-600 transition duration-300 ease-in-out">
-                    <Trash size={16} className="mr-1" /> Remove
-                  </button>
                 </div>
               </div>
             ))}
           </div>
           <div className="lg:w-1/3">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">Order Summary</h2>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span>${subTotal.toFixed(2)} COP</span>
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <h2 className="text-3xl font-bold text-gray-800 mb-6">Order Summary</h2>
+              <div className="space-y-4 mb-6">
+                <div className="flex justify-between text-lg">
+                  <span className="text-gray-600">Subtotal</span>
+                  <span className="font-semibold">${subTotal.toFixed(2)} COP</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Taxes</span>
-                  <span>${tax} COP</span>
+                <div className="flex justify-between text-lg">
+                  <span className="text-gray-600">Taxes</span>
+                  <span className="font-semibold">${tax} COP</span>
                 </div>
-                <div className="border-t pt-2 mt-2">
-                  <div className="flex justify-between font-semibold">
-                    <span>Total</span>
-                    <span>${(parseFloat(amount) + parseFloat(tax)).toFixed(2)} COP</span>
+                <div className="border-t-2 border-purple-100 pt-4 mt-4">
+                  <div className="flex justify-between text-xl font-bold">
+                    <span className="text-gray-800">Total</span>
+                    <span className="text-purple-600">${(parseFloat(amount) + parseFloat(tax)).toFixed(2)} COP</span>
                   </div>
                 </div>
               </div>
-              <form onSubmit={handleSubmit} method="post" action="https://checkout.payulatam.com/ppp-web-gateway-payu/" className="mt-6 space-y-4">
+              <form onSubmit={handleSubmit} method="post" action="https://checkout.payulatam.com/ppp-web-gateway-payu/" className="space-y-6">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                   <input
                     id="email"
                     name="buyerEmail"
                     type="email"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -133,12 +135,12 @@ const CartPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone Number</label>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
                   <input
                     id="phone"
                     name="telephone"
                     type="tel"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     placeholder="Enter your phone number"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -159,7 +161,7 @@ const CartPage: React.FC = () => {
                 <input name="confirmationUrl" type="hidden" value="http://localhost:8000/api/payment/confirmation" />
                 <button 
                   type="submit" 
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105"
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 shadow-lg"
                 >
                   Proceed to Checkout
                 </button>
