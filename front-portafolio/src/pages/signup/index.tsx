@@ -39,7 +39,6 @@ const SignUpPage = () => {
 
       if (response?.errors) {
         // Errors are already set by the register function
-        // You can add additional error handling here if needed
       } else {
         // Registration successful, you can add a success message or redirect here
       }
