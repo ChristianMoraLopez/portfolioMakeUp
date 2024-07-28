@@ -5,6 +5,7 @@ import InputError from '@/components/InputError';
 import Label from '@/components/Label';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/auth';
+import { Loader2 } from 'lucide-react';
 
 const SignUpPage = () => {
   const { register } = useAuth({
@@ -17,6 +18,7 @@ const SignUpPage = () => {
   const [password, setPassword] = useState<string>('');
   const [passwordConfirmation, setPasswordConfirmation] = useState<string>('');
   const [errors, setErrors] = useState<{ [key: string]: string[] }>({});
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   interface RegisterResponse {
     errors?: { [key: string]: string[] };
@@ -24,20 +26,27 @@ const SignUpPage = () => {
 
   const submitForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsLoading(true);
 
-    const response: RegisterResponse | undefined = await register({
-      name,
-      email,
-      password,
-      password_confirmation: passwordConfirmation,
-      setErrors,
-    });
+    try {
+      const response: RegisterResponse | undefined = await register({
+        name,
+        email,
+        password,
+        password_confirmation: passwordConfirmation,
+        setErrors,
+      });
 
-    if (response?.errors) {
-      // Errors are already set by the register function
-      // You can add additional error handling here if needed
-    } else {
-      // Registration successful, you can add a success message or redirect here
+      if (response?.errors) {
+        // Errors are already set by the register function
+        // You can add additional error handling here if needed
+      } else {
+        // Registration successful, you can add a success message or redirect here
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -57,8 +66,8 @@ const SignUpPage = () => {
               onChange={(event: ChangeEvent<HTMLInputElement>) => setName(event.target.value)}
               required
               autoFocus
+              disabled={isLoading}
             />
-            {/* Display errors for 'name' */}
             {errors['name'] && errors['name'].map((error, index) => (
               <InputError key={index} messages={[error]} className="mt-2" />
             ))}
@@ -74,8 +83,8 @@ const SignUpPage = () => {
               className="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               onChange={(event: ChangeEvent<HTMLInputElement>) => setEmail(event.target.value)}
               required
+              disabled={isLoading}
             />
-            {/* Display errors for 'email' */}
             {errors['email'] && errors['email'].map((error, index) => (
               <InputError key={index} messages={[error]} className="mt-2" />
             ))}
@@ -92,8 +101,8 @@ const SignUpPage = () => {
               onChange={(event: ChangeEvent<HTMLInputElement>) => setPassword(event.target.value)}
               required
               autoComplete="new-password"
+              disabled={isLoading}
             />
-            {/* Display errors for 'password' */}
             {errors['password'] && errors['password'].map((error, index) => (
               <InputError key={index} messages={[error]} className="mt-2" />
             ))}
@@ -109,23 +118,31 @@ const SignUpPage = () => {
               className="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               onChange={(event: ChangeEvent<HTMLInputElement>) => setPasswordConfirmation(event.target.value)}
               required
+              disabled={isLoading}
             />
-            {/* Display errors for 'password_confirmation' */}
             {errors['password_confirmation'] && errors['password_confirmation'].map((error, index) => (
               <InputError key={index} messages={[error]} className="mt-2" />
             ))}
           </div>
 
-          {/* Already registered link */}
+          {/* Already registered link and Register button */}
           <div className="flex items-center justify-between mt-6">
             <Link href="/login" passHref className="underline text-sm text-gray-600 hover:text-gray-900">
-              
-                Already registered?
-              
+              Already registered?
             </Link>
-            {/* Register button */}
-            <Button type="submit" className="ml-4 bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600">
-              Register
+            <Button
+              type="submit"
+              className="ml-4 bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 flex items-center"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                'Register'
+              )}
             </Button>
           </div>
         </form>
