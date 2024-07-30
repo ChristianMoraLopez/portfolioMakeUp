@@ -19,9 +19,7 @@ const CartPage: React.FC = () => {
   const description = 'Compra de productos';
 
   const amount = subTotal.toFixed(2);
-  const tax = 0; 
-  const taxReturnBase= 0;
-
+  
   const signatureString = `${apiKey}~${merchantId}~${referenceCode}~${amount}~${currency}`;
   const signature = md5(signatureString).toString();
 
@@ -109,14 +107,10 @@ const CartPage: React.FC = () => {
                   <span className="text-gray-600">Subtotal</span>
                   <span className="font-semibold">${subTotal.toFixed(2)} COP</span>
                 </div>
-                <div className="flex justify-between text-lg">
-                  <span className="text-gray-600">Taxes</span>
-                  <span className="font-semibold">${tax} COP</span>
-                </div>
                 <div className="border-t-2 border-purple-100 pt-4 mt-4">
                   <div className="flex justify-between text-xl font-bold">
                     <span className="text-gray-800">Total</span>
-                    <span className="text-purple-600">${(parseFloat(amount) + parseFloat(tax)).toFixed(2)} COP</span>
+                    <span className="text-purple-600">${amount} COP</span>
                   </div>
                 </div>
               </div>
@@ -152,8 +146,8 @@ const CartPage: React.FC = () => {
                 <input name="description" type="hidden" value={description} />
                 <input name="referenceCode" type="hidden" value={referenceCode} />
                 <input name="amount" type="hidden" value={amount} />
-                <input name="tax" type="hidden" value={tax} />
-                <input name="taxReturnBase" type="hidden" value={taxReturnBase} />
+                <input name="tax" type="hidden" value="0" />
+                <input name="taxReturnBase" type="hidden" value="0" />
                 <input name="currency" type="hidden" value={currency} />
                 <input name="signature" type="hidden" value={signature} />
                 <input name="test" type="hidden" value="0" />
