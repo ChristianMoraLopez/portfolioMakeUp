@@ -5,6 +5,7 @@ import Footer from '../components/Footer/Footer';
 import RandomServiceShowcase from '@components/Services/ServiceRandom';
 import PortfolioCarousel from '@components/Portafolio/Portafolio';
 import axios from '@/lib/axios';
+import Link from 'next/link';
 import { Sparkles, Paintbrush, Camera, Star, Heart, Zap } from 'lucide-react';
 import LoadingAnimation from '@components/Animations/LoadingAnimation';
 
@@ -76,13 +77,15 @@ const HomePage: React.FC = () => {
               <p className="text-lg text-gray-700 max-w-2xl mx-auto mb-6">
                 Realza tu belleza con nuestros expertos en maquillaje. Servicios personalizados para cada ocasión.
               </p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold rounded-full text-lg shadow-lg hover:shadow-xl transition duration-300"
-              >
-                Reserva tu sesión de maquillaje
-              </motion.button>
+              <Link href="/contactus">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold rounded-full text-lg shadow-lg hover:shadow-xl transition duration-300"
+                >
+                  Reserva tu sesión de maquillaje
+                </motion.button>
+              </Link>
             </motion.section>
 
             <motion.div

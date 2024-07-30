@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { Phone, Mail, ArrowRight, MessageCircle, ShoppingCart, UserPlus, LogIn, CreditCard, Mail as MailIcon } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import LoadingAnimation from '@/components/Animations/LoadingAnimation';
+import LoadingAnimation2 from '@/components/Animations/LoadingAnimation2';
 import { FaWhatsapp } from 'react-icons/fa';
 
 type Step = {
@@ -45,7 +45,7 @@ const ContactUs: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-100 to-blue-100">
       <AnimatePresence>
         {loading ? (
-           <LoadingAnimation key="loading" />
+           <LoadingAnimation2 key="loading" />
         ) : (
           <motion.div
             key="content"
