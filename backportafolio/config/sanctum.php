@@ -21,6 +21,7 @@ return [
         Sanctum::currentApplicationUrlWithPort(),
         env('FRONTEND_URL') ? ','.parse_url(env('FRONTEND_URL'), PHP_URL_HOST) : '',
         ',portfolio-make-up.vercel.app',
+        'valentinagomez.store',
         ',portfolio-make-up-git-main-christianmoralopezs-projects.vercel.app,portfolio-make-4foqlc14q-christianmoralopezs-projects.vercel.app'
     ))),
 
