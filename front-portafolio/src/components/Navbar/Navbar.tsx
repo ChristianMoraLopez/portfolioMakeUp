@@ -98,7 +98,7 @@ const Navbar: React.FC = () => {
               </span>
               <NavLinkMobile href="/profile" text="Perfil" />
               <NavLinkMobile href="/services" text="Servicios" />
-              <NavLinkMobile href="/contact" text="Contacto" />
+              <NavLinkMobile href="/contactus" text="Contacto" />
               <button
                 type="button"
                 onClick={handleLogout}
@@ -112,6 +112,8 @@ const Navbar: React.FC = () => {
             <>
               <NavLinkMobile href="/login" text="Iniciar sesión" />
               <NavLinkMobile href="/signup" text="Registrarse" />
+              <NavLinkMobile href="/services" text="Servicios" />
+              <NavLinkMobile href="/contactus" text="Contacto" />
             </>
           )}
         </div>

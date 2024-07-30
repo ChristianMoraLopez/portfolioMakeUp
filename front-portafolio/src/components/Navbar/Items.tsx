@@ -32,7 +32,7 @@ const Items: React.FC = () => {
 
       {/* Desktop Menu */}
       <div className="hidden md:flex items-center space-x-4">
-        <NavLink href="/contact" text="Contacto" icon={<Phone size={18} />} />
+        <NavLink href="/contactus" text="Contacto" icon={<Phone size={18} />} />
         <NavLink href="/services" text="Servicios" icon={<Briefcase size={18} />} />
 
         {user ? (
@@ -50,6 +50,11 @@ const Items: React.FC = () => {
               <Dropdown.Item as={Link} href="/dashboard">
                 <User size={14} className="mr-2" />
                 Ver mi cuenta
+              </Dropdown.Item>
+
+              <Dropdown.Item as={Link} href="/contactus">
+                <User size={14} className="mr-2" />
+                Contacta con nosotros
               </Dropdown.Item>
               <Dropdown.Item as={Link} href="/profile">
                 <User size={14} className="mr-2" />
