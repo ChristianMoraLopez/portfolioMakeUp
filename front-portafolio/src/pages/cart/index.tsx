@@ -19,8 +19,8 @@ const CartPage: React.FC = () => {
   const description = 'Compra de productos';
 
   const amount = subTotal.toFixed(2);
-  const tax = (subTotal * 0.16).toFixed(2);
-  const taxReturnBase = (subTotal - parseFloat(tax)).toFixed(2);
+  const tax = 0; 
+  const taxReturnBase= 0;
 
   const signatureString = `${apiKey}~${merchantId}~${referenceCode}~${amount}~${currency}`;
   const signature = md5(signatureString).toString();
