@@ -42,6 +42,7 @@ return [
         'https://portfolio-make-up-git-main-christianmoralopezs-projects.vercel.app',
         'https://portfolio-make-4foqlc14q-christianmoralopezs-projects.vercel.app',
         'https://portfolio-make-up.vercel.app',
+        'https://www.valentinagomez.store/',
         env('FRONTEND_URL', ''), // Usa la URL del frontend desde las variables de entorno
     ],
 
