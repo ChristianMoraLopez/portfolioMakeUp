@@ -13,10 +13,10 @@ interface PortfolioItem {
 const PortfolioCarousel: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [items] = useState<PortfolioItem[]>([
-    { id: 1, title: "Maquillaje de Novia", description: "Look radiante para tu día especial", imageUrl: "https://www.pexels.com/es-es/foto/28146003" },
-    { id: 2, title: "Maquillaje Editorial", description: "Conceptos creativos para sesiones de fotos", imageUrl: "https://instagram.fbog7-1.fna.fbcdn.net/v/t51.29350-15/417851392_6937597003026225_7242914967737599707_n.jpg?stp=dst-jpg_e35&efg=eyJ2ZW5jb2RlX3RhZyI6ImltYWdlX3VybGdlbi4xNDQweDE4MDAuc2RyLmYyOTM1MCJ9&_nc_ht=instagram.fbog7-1.fna.fbcdn.net&_nc_cat=109&_nc_ohc=JA03nbW2plMQ7kNvgGSioLY&edm=AEhyXUkBAAAA&ccb=7-5&ig_cache_key=MzI3NTM4MzA5NzE3OTEzNzMzOQ%3D%3D.2-ccb7-5&oh=00_AYBIgdn7cZrtnKf_7irvspIUkEXkemkcwbPGSfXXWSpBHA&oe=66A58907&_nc_sid=8f1549" },
-    { id: 3, title: "Maquillaje de Fiesta", description: "Glamour para tus noches más especiales", imageUrl: "https://images.pexels.com/photos/1523528/pexels-photo-1523528.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
-    { id: 4, title: "Maquillaje Natural", description: "Realza tu belleza de forma sutil", imageUrl: "https://images.pexels.com/photos/458766/pexels-photo-458766.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+    { id: 1, title: "Maquillaje de Novia", description: "Look radiante para tu día especial", imageUrl: "https://images.pexels.com/photos/28146003/pexels-photo-28146003.png" },
+    { id: 2, title: "Maquillaje Editorial", description: "Conceptos creativos para sesiones de fotos", imageUrl: "https://images.pexels.com/photos/28146011/pexels-photo-28146011.png" },
+    { id: 3, title: "Maquillaje de Fiesta", description: "Glamour para tus noches más especiales", imageUrl: "https://images.pexels.com/photos/28146057/pexels-photo-28146057.png" },
+    { id: 4, title: "Maquillaje Natural", description: "Realza tu belleza de forma sutil", imageUrl: "https://images.pexels.com/photos/28145998/pexels-photo-28145998.png" },
   ]);
 
   const nextSlide = () => {
