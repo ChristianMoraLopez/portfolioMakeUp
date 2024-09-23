@@ -17,7 +17,7 @@ const Items: React.FC = () => {
       {/* Logo */}
       <div className="flex-1 flex items-center justify-start">
         <Link href="/" className="text-[#003B4A] text-xl md:text-2xl font-bold flex items-center cursor-pointer transition-colors duration-300 hover:text-[#005d75]">
-          <span className="hidden md:inline">Valentina&apos;s Makeup Portfolio</span>
+          <span className="hidden md:inline">Valentina&apos;s Makeup Services</span>
         </Link>
       </div>
 
