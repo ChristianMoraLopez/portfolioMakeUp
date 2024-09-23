@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { useCart } from '@store/Cart';
 import { useAuth } from '@/hooks/auth';
 import ShoppingCartIcon from './ShoppingCartIcon';
-import { User, ShoppingBag, Phone, Briefcase, LogIn, UserPlus, LogOut } from 'lucide-react';
+import { User, ShoppingBag, Phone, Briefcase, LogIn, UserPlus, LogOut, Camera } from 'lucide-react';
 
 const Items: React.FC = () => {
   const { pathname } = useRouter();
@@ -34,6 +34,7 @@ const Items: React.FC = () => {
       <div className="hidden md:flex items-center space-x-4">
         <NavLink href="/contactus" text="Contacto" icon={<Phone size={18} />} />
         <NavLink href="/services" text="Servicios" icon={<Briefcase size={18} />} />
+        <NavLink href="https://portafoliomakeup.vercel.app/" text="Portafolio"  icon= {<Briefcase size={18} />}/>
 
         {user ? (
           <Dropdown
