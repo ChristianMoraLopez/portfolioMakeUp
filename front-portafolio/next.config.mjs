@@ -19,7 +19,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://portafoliomakeup-hkwusnxq.b4a.run/api/:path*',
+        destination: 'https://portafoliomakeup-v1020iea.b4a.run/api/:path*',
       },
     ];
   },
