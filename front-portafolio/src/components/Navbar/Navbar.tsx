@@ -97,6 +97,7 @@ const Navbar: React.FC = () => {
                 Hola, {user.name}
               </span>
               <NavLinkMobile href="/profile" text="Perfil" />
+              <NavLinkMobile href="https://portafoliomakeup.vercel.app/" text="Portafolio" />
               <NavLinkMobile href="/services" text="Servicios" />
               <NavLinkMobile href="/contactus" text="Contacto" />
               <button
@@ -113,6 +114,7 @@ const Navbar: React.FC = () => {
               <NavLinkMobile href="/login" text="Iniciar sesión" />
               <NavLinkMobile href="/signup" text="Registrarse" />
               <NavLinkMobile href="/services" text="Servicios" />
+              <NavLinkMobile href="https://portafoliomakeup.vercel.app/" text="Portafolio" />
               <NavLinkMobile href="/contactus" text="Contacto" />
             </>
           )}
