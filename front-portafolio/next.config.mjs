@@ -9,7 +9,7 @@ const nextConfig = {
       'images.pexels.com',
       'via.placeholder.com',
       'instagram.fbog7-1.fna.fbcdn.net',
-      'www.dropbox.com'
+      'previews.dropbox.com'
     ],
   },
   webpack(config) {
